@@ -70,14 +70,14 @@ export async function POST(req: NextRequest) {
     if (!userDoc) return sendErrorResponse(404, "User not found");
 
     const doc = await AdminInvestments.create({
-      // userAsset: userAsset,
-      // category: catDoc.name,
-      // subCategory: subCatDoc.name,
-      // marketValue,
-      // costPrice,
-      // initialCost,
-      // email: userDoc.email,
-      // clientCode: userDoc.clientCode,
+      userAsset: userAsset,
+      category: catDoc.name,
+      subCategory: subCatDoc.name,
+      marketValue,
+      costPrice,
+      initialCost,
+      email: userDoc.email,
+      clientCode: userDoc.clientCode,
     });
 
     return sendSuccessResponse(201, "User asset created successfully", doc);
