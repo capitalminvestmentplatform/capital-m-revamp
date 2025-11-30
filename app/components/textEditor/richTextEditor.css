@@ -1,0 +1,123 @@
+/* Ensure this affects all content inside ProseMirror */
+.ProseMirror {
+  line-height: 1 !important;
+}
+
+.ProseMirror p,
+.ProseMirror li,
+.ProseMirror ul,
+.ProseMirror ol {
+  line-height: 1 !important; /* override if needed */
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.ProseMirror ul {
+  list-style-type: disc !important;
+  margin-left: 1.25rem;
+  padding-left: 1rem;
+}
+
+.ProseMirror ol {
+  list-style-type: decimal !important;
+  margin-left: 1.25rem;
+  padding-left: 1rem;
+}
+
+/* Base styles for all images */
+.ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto; /* default: center */
+}
+
+/* Custom alignment using data attributes */
+.ProseMirror span[data-align="left"],
+.ProseMirror div[data-align="left"],
+.ProseMirror img[data-align="left"] {
+  text-align: left;
+}
+
+.ProseMirror span[data-align="center"],
+.ProseMirror div[data-align="center"],
+.ProseMirror img[data-align="center"] {
+  text-align: center;
+}
+
+.ProseMirror span[data-align="right"],
+.ProseMirror div[data-align="right"],
+.ProseMirror img[data-align="right"] {
+  text-align: right;
+}
+
+/* Alignment effect on the image inside wrapper */
+.ProseMirror span[data-align="left"] img,
+.ProseMirror div[data-align="left"] img {
+  margin-left: 0;
+  margin-right: auto;
+  display: block;
+}
+
+.ProseMirror span[data-align="center"] img,
+.ProseMirror div[data-align="center"] img {
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+}
+
+.ProseMirror span[data-align="right"] img,
+.ProseMirror div[data-align="right"] img {
+  margin-left: auto;
+  margin-right: 0;
+  display: block;
+}
+
+/* .editor-area h1 {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.editor-area h2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+ul {
+  list-style-type: disc;
+  margin-left: 1.25rem;
+}
+
+ol {
+  list-style-type: decimal;
+  margin-left: 1.25rem;
+}
+font[size="2"] {
+  font-size: 12px;
+}
+font[size="3"] {
+  font-size: 14px;
+}
+font[size="4"] {
+  font-size: 16px;
+}
+font[size="5"] {
+  font-size: 18px;
+}
+
+[contenteditable] img {
+  display: block;
+  margin: 1rem 0;
+  max-width: 100%;
+  border-radius: 0.5rem;
+}
+
+.image-wrapper {
+  display: flex;
+  margin: 1rem 0;
+}
+
+.image-wrapper img {
+  max-width: 100%;
+  height: auto;
+} */

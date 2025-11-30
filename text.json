@@ -1,0 +1,9 @@
+
+
+    "dev": "ts-node server.ts",
+    "build": "next build",
+    "start": "NODE_ENV=production ts-node server.ts",
+
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
