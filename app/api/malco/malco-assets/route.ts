@@ -71,12 +71,12 @@ export async function POST(req: NextRequest) {
     ]);
     if (!catDoc) return sendErrorResponse(404, "Category not found");
     if (!subCatDoc) return sendErrorResponse(404, "Subcategory not found");
-    if (subCatDoc.category && String(subCatDoc.category) !== String(category)) {
-      return sendErrorResponse(
-        400,
-        "Selected subcategory does not belong to the selected category"
-      );
-    }
+    // if (subCatDoc.category && String(subCatDoc.category) !== String(category)) {
+    //   return sendErrorResponse(
+    //     400,
+    //     "Selected subcategory does not belong to the selected category"
+    //   );
+    // }
 
     const nameRegex = buildLooseNameRegex(assetName);
 
