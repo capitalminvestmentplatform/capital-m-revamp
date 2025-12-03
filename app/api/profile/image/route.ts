@@ -21,7 +21,10 @@ export async function PUT(req: NextRequest) {
     }
 
     // Upload image to Cloudinary
-    const imageUrl = await uploadFileToCloudinary(file, "user/profile");
+    const imageUrl = await uploadFileToCloudinary(
+      file,
+      "capital-m-revamp/user/profile"
+    );
 
     // Find and update user
     const user = await User.findById(userId);

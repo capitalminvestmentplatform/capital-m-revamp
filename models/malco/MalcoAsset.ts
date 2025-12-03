@@ -2,8 +2,9 @@ import mongoose, { Schema, Document, models } from "mongoose";
 
 const MalcoAssetSchema = new Schema(
   {
-    assetName: { type: String, required: true, trim: true },
-    longName: { type: String, default: "", trim: true },
+    assetName: { type: String, required: true },
+    assetNameNormalized: { type: String, index: true }, // <-- add this
+    longName: { type: String, default: "" },
     category: {
       type: Schema.Types.ObjectId,
       ref: "MalcoCategory",
@@ -14,7 +15,7 @@ const MalcoAssetSchema = new Schema(
       ref: "MalcoSubcategory",
       required: true,
     },
-    isin: { type: String, default: "", trim: true },
+    isin: { type: String, default: "" },
     pandaId: { type: Number, default: "" },
     byAdmin: {
       type: Boolean,
@@ -29,20 +30,23 @@ function normalizeName(s: string) {
   return s.trim().replace(/\s+/g, " ").toLowerCase();
 }
 
-// keep normalized in sync
+MalcoAssetSchema.pre("insertMany", function (next, docs: any[]) {
+  docs.forEach((doc) => {
+    if (doc.assetName && !doc.assetNameNormalized) {
+      doc.assetNameNormalized = normalizeName(doc.assetName);
+    }
+  });
+  next();
+});
+
 MalcoAssetSchema.pre("validate", function (next) {
   // @ts-ignore
   if (this.assetName) {
     // @ts-ignore
-    this.assetNameNormalized = normalizeName(this.assetName);
+    this.assetNameNormalized = normalizeName(this.assetName as string);
   }
   next();
 });
-
-MalcoAssetSchema.index(
-  { subCategory: 1, assetNameNormalized: 1 },
-  { unique: true, collation: { locale: "en", strength: 2 } }
-);
 
 const MalcoAsset =
   models.MalcoAsset || mongoose.model("MalcoAsset", MalcoAssetSchema);

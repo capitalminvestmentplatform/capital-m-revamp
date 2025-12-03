@@ -5,7 +5,6 @@ import { sendErrorResponse, sendSuccessResponse } from "@/utils/apiResponse";
 import { Types } from "mongoose";
 import MalcoCategory from "@/models/malco/MalcoCategory";
 import MalcoSubcategory from "@/models/malco/MalcoSubCategory";
-
 export async function GET(req: NextRequest) {
   try {
     await connectToDatabase();
@@ -20,13 +19,21 @@ export async function GET(req: NextRequest) {
     }
 
     const malcoAssets = await MalcoAsset.find(filter)
-      .sort({ assetName: 1 }) // fixed: use assetName instead of name
+      .populate({ path: "category", select: "name _id" })
+      .populate({ path: "subCategory", select: "name _id" })
+      .sort({ assetName: 1 })
       .lean();
+
+    const formatted = malcoAssets.map((asset) => ({
+      ...asset,
+      category: asset.category?.name || "",
+      subCategory: asset.subCategory?.name || "",
+    }));
 
     return sendSuccessResponse(
       200,
       "Malco assets fetched successfully",
-      malcoAssets
+      formatted
     );
   } catch (error) {
     return sendErrorResponse(500, "Internal server error", error);

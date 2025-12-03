@@ -35,7 +35,7 @@ const Home = () => {
           </div>
           <button
             onClick={() => {
-              window.location.href = "/sign-in";
+              window.location.href = "/auth/login";
             }}
             className="
               rounded-full bg-[#f9b500] px-6 py-3 text-sm sm:text-base
@@ -76,7 +76,7 @@ const Home = () => {
           </p>
           <button
             onClick={() => {
-              window.location.href = "/sign-in";
+              window.location.href = "/auth/login";
             }}
             className="
               rounded-full bg-[#f9b500] px-6 py-3
