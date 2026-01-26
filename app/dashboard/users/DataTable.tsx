@@ -18,7 +18,7 @@ interface DataTableProps {
   tableCols: string[]; // Array of column headers
   tableRows: Record<string, any>[]; // Array of objects with dynamic keys
   handleDelete: (userId: string) => Promise<boolean>;
-  sendEmail: (userId: string) => void;
+  sendEmail: (user: Record<string, any>) => void;
 }
 
 const DataTable: React.FC<DataTableProps> = ({
@@ -43,51 +43,71 @@ const DataTable: React.FC<DataTableProps> = ({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {tableRows.map((row, index) => (
-          <TableRow key={index}>
-            <TableCell>{row.clientCode ? row.clientCode : "-"}</TableCell>
-            <TableCell>
-              {row.firstName} {row.lastName}
-            </TableCell>
-            <TableCell>{row.email}</TableCell>
-            <TableCell>{row.phone}</TableCell>
-            <TableCell className="capitalize">{row.role}</TableCell>
-            {/* <TableCell>
-              {row.role === "User" ? (
-                <button
-                  onClick={() => sendEmail(row._id)}
-                  className="bg-primaryBG hover:bg-primaryBG text-white py-1 px-3 rounded-md text-xs font-semibold"
-                >
-                  Send
-                </button>
-              ) : (
-                <>-</>
-              )}
-            </TableCell> */}
-            <TableCell className="flex gap-2">
-              {row._id !== id && (
-                <>
-                  <ConfirmModal
-                    title="Delete User?"
-                    description="Are you sure you want to delete this user? This action cannot be undone."
-                    onConfirm={() => handleDelete(row._id)}
-                  >
-                    <button className="bg-white/80 p-1 rounded hover:bg-red-200">
-                      <Trash size={16} className="text-red-600" />
-                    </button>
-                  </ConfirmModal>
+        {tableRows.map((row, index) => {
+          const isInviteSent = row.invite === true;
+          const isCmEmail = row.email?.includes("cm00");
 
-                  <Link
-                    href={`/dashboard/users/${row._id}`}
-                    className="bg-white/80 p-1 rounded hover:bg-green-200"
+          const isDisabled = isInviteSent || isCmEmail;
+          const isSent = isInviteSent;
+
+          return (
+            <TableRow key={index}>
+              <TableCell>{row.clientCode ? row.clientCode : "-"}</TableCell>
+
+              <TableCell>
+                {row.firstName} {row.lastName}
+              </TableCell>
+
+              <TableCell>{row.email}</TableCell>
+              <TableCell>{row.phone}</TableCell>
+              <TableCell className="capitalize">{row.role}</TableCell>
+
+              <TableCell>
+                {row.role === "User" ? (
+                  <button
+                    disabled={isDisabled}
+                    onClick={() => !isDisabled && sendEmail(row)}
+                    className={`py-1 px-3 rounded-md text-xs font-semibold
+                ${
+                  isSent
+                    ? "bg-green-200 text-green-600 cursor-not-allowed"
+                    : isDisabled
+                      ? "bg-gray-400 text-white cursor-not-allowed"
+                      : "bg-primaryBG text-white hover:bg-primaryBG"
+                }`}
                   >
-                    <Pencil size={16} className="text-primaryBG" />
-                  </Link>
-                </>
-              )}
-            </TableCell>
-          </TableRow>
-        ))}
+                    {isSent ? "Sent" : "Send"}
+                  </button>
+                ) : (
+                  <>-</>
+                )}
+              </TableCell>
+
+              <TableCell className="flex gap-2">
+                {row._id !== id && (
+                  <>
+                    <ConfirmModal
+                      title="Delete User?"
+                      description="Are you sure you want to delete this user? This action cannot be undone."
+                      onConfirm={() => handleDelete(row._id)}
+                    >
+                      <button className="bg-white/80 p-1 rounded hover:bg-red-200">
+                        <Trash size={16} className="text-red-600" />
+                      </button>
+                    </ConfirmModal>
+
+                    <Link
+                      href={`/dashboard/users/${row._id}`}
+                      className="bg-white/80 p-1 rounded hover:bg-green-200"
+                    >
+                      <Pencil size={16} className="text-primaryBG" />
+                    </Link>
+                  </>
+                )}
+              </TableCell>
+            </TableRow>
+          );
+        })}
       </TableBody>
     </Table>
   );

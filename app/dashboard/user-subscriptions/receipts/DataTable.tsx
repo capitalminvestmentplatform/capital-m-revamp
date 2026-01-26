@@ -17,7 +17,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import React, { useState } from "react";
+import React, { Fragment, useState } from "react";
 import { getLoggedInUser } from "@/utils/client";
 import Image from "next/image";
 import CustomButton from "../../../components/Button";
@@ -104,32 +104,42 @@ const DataTable: React.FC<DataTableProps> = ({
       <TableBody>
         {filteredRows.map((row, index) => (
           <TableRow key={index}>
-            <TableCell>{row.productId ? row.productId : "-"}</TableCell>
-            <TableCell>
-              <Link
-                href={`/dashboard/investments/${row._id}`}
-                className="text-blue-500 hover:underline"
-              >
-                {row.title ? row.title : "-"}
-              </Link>
-            </TableCell>
-            <TableCell className="relative">
-              {row.thumbnail ? (
-                <div className="relative w-16 h-16 rounded-full overflow-hidden">
-                  <Image
-                    src={row.thumbnail}
-                    alt="thumbnail"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              ) : (
-                <div
-                  style={{ width: "50px", height: "50px" }}
-                  className="rounded-full border-2"
-                />
-              )}
-            </TableCell>
+            {row.productId ? (
+              <Fragment>
+                <TableCell>{row.productId ? row.productId : "-"}</TableCell>
+                <TableCell>
+                  <Link
+                    href={`/dashboard/investments/${row._id}`}
+                    className="text-blue-500 hover:underline"
+                  >
+                    {row.title ? row.title : "-"}
+                  </Link>
+                </TableCell>
+                <TableCell className="relative">
+                  {row.thumbnail ? (
+                    <div className="relative w-16 h-16 rounded-full overflow-hidden">
+                      <Image
+                        src={row.thumbnail}
+                        alt="thumbnail"
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div
+                      style={{ width: "50px", height: "50px" }}
+                      className="rounded-full border-2"
+                    />
+                  )}
+                </TableCell>
+              </Fragment>
+            ) : (
+              <Fragment>
+                <TableCell>-</TableCell>
+                <TableCell>-</TableCell>
+                <TableCell>-</TableCell>
+              </Fragment>
+            )}
             {role === "Admin" && (
               <TableCell>
                 {row.clientCode ? `${row.clientCode} ${row.username}` : "-"}
@@ -188,10 +198,12 @@ const DataTable: React.FC<DataTableProps> = ({
                 <div className="text-xs bg-orange-200 text-orange-600 px-3 py-1 rounded-md w-fit">
                   {row.status}
                 </div>
-              ) : (
+              ) : row.status === "Completed" ? (
                 <div className="text-xs bg-green-200 text-green-600 px-3 py-1 rounded-md w-fit">
                   {row.status}
                 </div>
+              ) : (
+                <div>-</div>
               )}
             </TableCell>
             <TableCell>

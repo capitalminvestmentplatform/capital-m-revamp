@@ -59,7 +59,7 @@ interface Users {
   phone: string;
 }
 
-interface AddDistributionNoticeModalProps {
+interface AddReceiptModalProps {
   users: Users[];
   onSubmit: (data: any) => Promise<boolean>;
 }
@@ -70,13 +70,12 @@ const rowSchema = z.object({
   phone: z.string().optional(),
   username: z.string().min(1, "Username is required"),
   clientCode: z.string().min(1, "Client code is required"),
-  distributionAmount: z
+  commitmentAmount: z
     .string()
     .min(1, "Amount is required")
     .refine((v) => !Number.isNaN(Number(v)), "Amount must be a number")
     .refine((v) => Number(v) > 0, "Amount must be greater than 0"),
-  distributionDate: z.string().min(1, "Distribution date is required"),
-  description: z.string().optional(),
+  createdAt: z.string().min(1, "Receipt date is required"),
 });
 
 const formSchema = z.object({
@@ -85,10 +84,7 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export const AddDistributionNoticeModal = ({
-  users,
-  onSubmit,
-}: AddDistributionNoticeModalProps) => {
+export const AddReceiptModal = ({ users, onSubmit }: AddReceiptModalProps) => {
   const [open, setOpen] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
 
@@ -145,9 +141,8 @@ export const AddDistributionNoticeModal = ({
           clientCode: u.clientCode,
           email: u.email,
           phone: u.phone,
-          distributionAmount: "",
-          distributionDate: defaultDate(),
-          description: "",
+          commitmentAmount: "",
+          createdAt: defaultDate(),
         });
       }
 
@@ -186,14 +181,14 @@ export const AddDistributionNoticeModal = ({
       <DialogTrigger asChild>
         <CustomButton
           classes="bg-primaryBG hover:bg-primaryBG text-white px-5 py-2 rounded-md"
-          name="Add Distribution (Bulk)"
+          name="Add Receipt (Bulk)"
           type="button"
         />
       </DialogTrigger>
 
       <DialogContent className="max-w-5xl">
         <DialogHeader>
-          <DialogTitle>Create New Distribution</DialogTitle>
+          <DialogTitle>Create New Receipt</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
@@ -297,12 +292,11 @@ export const AddDistributionNoticeModal = ({
                       <TableHead className="text-black">Username</TableHead>
                       <TableHead className="text-black">Client Code</TableHead>
                       <TableHead className="w-[170px] text-black">
-                        Distribution Amount (AED)
+                        Commitment Amount (AED)
                       </TableHead>
                       <TableHead className="w-[190px] text-black">
-                        Distribution Date
+                        Receipt Date
                       </TableHead>
-                      <TableHead className="text-black">Description</TableHead>
                     </TableRow>
                   </TableHeader>
 
@@ -326,7 +320,7 @@ export const AddDistributionNoticeModal = ({
                           <TableCell className="align-top">
                             <FormField
                               control={control}
-                              name={`rows.${index}.distributionAmount`}
+                              name={`rows.${index}.commitmentAmount`}
                               render={({ field }) => (
                                 <FormItem>
                                   <FormControl>
@@ -337,12 +331,10 @@ export const AddDistributionNoticeModal = ({
                               )}
                             />
                           </TableCell>
-
-                          {/* Date */}
                           <TableCell className="align-top">
                             <FormField
                               control={control}
-                              name={`rows.${index}.distributionDate`}
+                              name={`rows.${index}.createdAt`}
                               render={({ field }) => (
                                 <FormItem>
                                   <FormControl>
@@ -354,25 +346,9 @@ export const AddDistributionNoticeModal = ({
                             />
                           </TableCell>
 
+                          {/* Date */}
+
                           {/* Description */}
-                          <TableCell className="align-top">
-                            <FormField
-                              control={control}
-                              name={`rows.${index}.description`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormControl>
-                                    <Textarea
-                                      rows={2}
-                                      placeholder="Add description..."
-                                      {...field}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </TableCell>
 
                           {/* Hidden fields (still part of schema) */}
                           <input
@@ -408,9 +384,7 @@ export const AddDistributionNoticeModal = ({
                 type="submit"
                 disabled={fields.length === 0 || formState.isSubmitting}
               >
-                {formState.isSubmitting
-                  ? "Submitting..."
-                  : "Submit Distribution"}
+                {formState.isSubmitting ? "Submitting..." : "Submit Receipts"}
               </Button>
             </div>
           </form>

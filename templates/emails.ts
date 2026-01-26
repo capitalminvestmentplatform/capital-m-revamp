@@ -26,7 +26,7 @@ export async function newsletterEmail(
     subject: string;
     description: string;
   },
-  subject: string
+  subject: string,
 ) {
   const {
     name,
@@ -44,7 +44,7 @@ export async function newsletterEmail(
       investmentTitle,
       description,
       newsletterTitle,
-    })
+    }),
   );
 
   return sendEmail(email, subject, emailHtml);
@@ -55,7 +55,7 @@ export async function kycEmail(
     email: string;
     isAdmin?: boolean;
   },
-  subject: string
+  subject: string,
 ) {
   const { name, email, isAdmin } = payload;
 
@@ -63,7 +63,7 @@ export async function kycEmail(
     React.createElement(KYC, {
       name,
       isAdmin,
-    })
+    }),
   );
 
   return sendEmail(email, subject, emailHtml);
@@ -82,7 +82,7 @@ export async function statementEmail(
       name: string;
     };
   },
-  subject: string
+  subject: string,
 ) {
   const {
     firstName,
@@ -106,7 +106,7 @@ export async function statementEmail(
       month,
       year,
       statementUrl,
-    })
+    }),
   );
 
   return sendEmail(email, subject, emailHtml, attachment);
@@ -118,7 +118,6 @@ export async function distributionNoticeEmail(
     lastName: string;
     email: string;
     clientCode: string;
-    commitmentName: string;
     description: string;
     distributionAmount: number;
     attachment: {
@@ -126,14 +125,13 @@ export async function distributionNoticeEmail(
       name: string;
     };
   },
-  subject: string
+  subject: string,
 ) {
   const {
     firstName,
     lastName,
     email,
     clientCode,
-    commitmentName,
     description,
     distributionAmount,
     attachment,
@@ -144,10 +142,9 @@ export async function distributionNoticeEmail(
     React.createElement(DistributionNotice, {
       name,
       clientCode,
-      commitmentName,
       distributionAmount,
       description,
-    })
+    }),
   );
 
   return sendEmail(email, subject, emailHtml, attachment);
@@ -157,7 +154,7 @@ export async function receiptSendToClientEmail(
   payload: {
     username: string;
     email: string;
-    title: string;
+    title?: string;
     receiptId: string;
     commitmentAmount: number;
     createdAt: Date;
@@ -167,7 +164,7 @@ export async function receiptSendToClientEmail(
       name: string;
     };
   },
-  subject: string
+  subject: string,
 ) {
   const {
     username,
@@ -189,7 +186,7 @@ export async function receiptSendToClientEmail(
       commitmentAmount,
       receiptId,
       createdAt,
-    })
+    }),
   );
 
   return sendEmail(email, subject, emailHtml, attachment);
@@ -213,7 +210,7 @@ export async function capitalCallSendToClientEmail(
       name: string;
     };
   },
-  subject: string
+  subject: string,
 ) {
   const {
     username,
@@ -243,7 +240,7 @@ export async function capitalCallSendToClientEmail(
       accountNumber,
       swiftCode,
       branch,
-    })
+    }),
   );
 
   return sendEmail(email, subject, emailHtml, attachment);
@@ -257,7 +254,7 @@ export async function subscriptionSendToClientEmail(
     productId: string;
     subscriptionId: string;
   },
-  subject: string
+  subject: string,
 ) {
   const { username, email, title, productId, subscriptionId } = payload;
   const subscriptionUrl = `${process.env.NEXT_PUBLIC_BASE_URL}dashboard/user-subscriptions/subscriptions/${subscriptionId}`;
@@ -268,7 +265,7 @@ export async function subscriptionSendToClientEmail(
       title,
       productId,
       subscriptionUrl,
-    })
+    }),
   );
 
   return sendEmail(email, subject, emailHtml);
@@ -285,7 +282,7 @@ export async function signedSubscriptionSendToClientEmail(
       name: string;
     };
   },
-  subject: string
+  subject: string,
 ) {
   const { username, email, title, attachment, subscriptionId } = payload;
   const subscriptionUrl = `${process.env.NEXT_PUBLIC_BASE_URL}dashboard/user-subscriptions/subscriptions/${subscriptionId}`;
@@ -295,7 +292,7 @@ export async function signedSubscriptionSendToClientEmail(
       username,
       title,
       subscriptionUrl,
-    })
+    }),
   );
 
   return sendEmail(email, subject, emailHtml, attachment);
@@ -311,7 +308,7 @@ export async function commitmentUserEmail(
     commitmentAmount: number;
     productId: string;
   },
-  subject: string
+  subject: string,
 ) {
   const {
     firstName,
@@ -329,7 +326,7 @@ export async function commitmentUserEmail(
       phone,
       commitmentAmount,
       productId,
-    })
+    }),
   );
 
   return sendEmail(email, subject, emailHtml);
@@ -345,7 +342,7 @@ export async function callRequestAdminEmail(
     message: string;
     clientCode: string;
   },
-  subject: string
+  subject: string,
 ) {
   const { username, userEmail, adminEmail, title, phone, message, clientCode } =
     payload;
@@ -357,7 +354,7 @@ export async function callRequestAdminEmail(
       phone,
       message,
       clientCode,
-    })
+    }),
   );
 
   return sendEmail(adminEmail, subject, emailHtml);
@@ -374,7 +371,7 @@ export async function commitmentAdminEmail(
     commitmentAmount: number;
     message: string;
   },
-  subject: string
+  subject: string,
 ) {
   const {
     username,
@@ -395,7 +392,7 @@ export async function commitmentAdminEmail(
       commitmentAmount,
       message,
       clientCode,
-    })
+    }),
   );
 
   return sendEmail(adminEmail, subject, emailHtml);
@@ -408,7 +405,7 @@ export async function accountVerificationEmail(
     email: string;
     verificationToken: string;
   },
-  subject: string
+  subject: string,
 ) {
   const { firstName, lastName, email, verificationToken } = payload;
   const verificationUrl = `${process.env.NEXT_PUBLIC_BASE_URL}auth/verify-user?token=${verificationToken}`;
@@ -416,7 +413,7 @@ export async function accountVerificationEmail(
     React.createElement(VerifyUser, {
       name: `${firstName} ${lastName}`,
       verifyUrl: verificationUrl,
-    })
+    }),
   );
 
   return sendEmail(email, subject, emailHtml);
@@ -432,7 +429,7 @@ export async function newInvestmentEmail(
     investmentDuration: string;
     investmentId: string;
   },
-  subject: string
+  subject: string,
 ) {
   const {
     firstName,
@@ -452,7 +449,7 @@ export async function newInvestmentEmail(
       projectedReturn: projectedReturn,
       investmentDuration: +investmentDuration,
       investmentUrl,
-    })
+    }),
   );
 
   return sendEmail(email, subject, emailHtml);
@@ -465,7 +462,7 @@ export async function forgotPasswordEmail(
     email: string;
     resetToken: string;
   },
-  subject: string
+  subject: string,
 ) {
   const { firstName, lastName, email, resetToken } = payload;
   const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL}auth/verify-reset-pin?token=${resetToken}`;
@@ -473,7 +470,7 @@ export async function forgotPasswordEmail(
     React.createElement(VerifyUser, {
       name: `${firstName} ${lastName}`,
       verifyUrl: resetUrl,
-    })
+    }),
   );
 
   return sendEmail(email, subject, emailHtml);
@@ -486,7 +483,7 @@ export async function welcomeEmailTemp(
     email: string;
     password: string;
   },
-  subject: string
+  subject: string,
 ) {
   const { firstName, lastName, email, password } = payload;
 
@@ -494,7 +491,7 @@ export async function welcomeEmailTemp(
     React.createElement(WelcomeTemp, {
       name: `${firstName} ${lastName}`,
       password,
-    })
+    }),
   );
 
   return sendEmail(email, subject, emailHtml);
@@ -507,7 +504,7 @@ export async function welcomeEmail(
     verificationToken: string;
     password: string;
   },
-  subject: string
+  subject: string,
 ) {
   const { firstName, lastName, email, verificationToken, password } = payload;
   const verificationUrl = `${process.env.NEXT_PUBLIC_BASE_URL}auth/verify-user?token=${verificationToken}`;
@@ -517,7 +514,7 @@ export async function welcomeEmail(
       name: `${firstName} ${lastName}`,
       verificationUrl,
       password,
-    })
+    }),
   );
 
   return sendEmail(email, subject, emailHtml);
@@ -530,7 +527,7 @@ async function sendEmail(
   attachment?: {
     file: string;
     name: string;
-  }
+  },
 ) {
   try {
     const directUrl = `${attachment?.file}${attachment?.file.includes("?") ? "&" : "?"}alt=media`;
@@ -545,12 +542,12 @@ async function sendEmail(
     }
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}api/brevo`,
+      `${process.env.NEXT_PUBLIC_BASE_URL}api/brevo/email`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: payload,
-      }
+      },
     );
 
     if (!response.ok) {

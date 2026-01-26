@@ -1,36 +1,32 @@
 "use client";
 import React from "react";
 
-interface Receipt {
+interface DistributionNotice {
   username: string;
-  title: string;
   phone: string;
   email: string;
   clientCode?: string;
-  commitmentAmount: number;
+  distributionAmount: number;
+  distributionDate: number;
+  description: number;
   logoB64: string;
-  receiptId: string;
-  productId: string;
-  createdAt: Date;
 }
 
 interface Props {
-  receipt: Receipt;
+  distributionNotice: DistributionNotice;
 }
 
-const ReceiptPDF: React.FC<Props> = ({ receipt }) => {
+const DistributionNoticePDF: React.FC<Props> = ({ distributionNotice }) => {
   const {
     username,
-    title,
     phone,
     email,
     clientCode,
-    commitmentAmount,
+    distributionAmount,
+    distributionDate,
+    description,
     logoB64,
-    receiptId,
-    productId,
-    createdAt,
-  } = receipt;
+  } = distributionNotice;
 
   return (
     <div
@@ -61,7 +57,7 @@ const ReceiptPDF: React.FC<Props> = ({ receipt }) => {
           fontWeight: 600,
         }}
       >
-        RECEIPT
+        DISTRIBUTION NOTICE
       </p>
 
       <p style={{ fontSize: 30, fontWeight: "bold" }}>{username}</p>
@@ -83,29 +79,12 @@ const ReceiptPDF: React.FC<Props> = ({ receipt }) => {
           <p style={{ marginBottom: 0 }}>
             <strong>Client Code:</strong> {clientCode || "N/A"}
           </p>
-          {title && (
-            <p style={{ marginBottom: 0 }}>
-              <strong>Investment Title:</strong> {title}
-            </p>
-          )}
-          <p style={{ marginBottom: 0 }}>
-            <strong>Commitment Amount:</strong> AED{" "}
-            {commitmentAmount && commitmentAmount.toLocaleString()}
-          </p>
-        </div>
-        <div>
-          {productId && (
-            <p style={{ marginBottom: 0 }}>
-              <strong>Investment ID:</strong> {productId}
-            </p>
-          )}
-          <p style={{ marginBottom: 0 }}>
-            <strong>Receipt ID:</strong> {receiptId}
-          </p>
         </div>
       </div>
 
-      <h3 style={{ marginTop: 30, color: "gray" }}>Receipt Details:</h3>
+      <h3 style={{ marginTop: 30, color: "gray" }}>
+        Distribution Notice Details:
+      </h3>
       <table
         style={{
           width: "100%",
@@ -127,10 +106,9 @@ const ReceiptPDF: React.FC<Props> = ({ receipt }) => {
           </tr>
           <tr>
             <td style={{ border: "1px solid #ccc", padding: 8 }}>
-              <p style={{ fontWeight: "bold" }}>Payment Date:</p>
+              <p style={{ fontWeight: "bold" }}>Distribution Date:</p>
               <p>
-                {" "}
-                {new Date(createdAt).toLocaleString("en-US", {
+                {new Date(distributionDate).toLocaleString("en-US", {
                   hour12: true,
                   hour: "numeric",
                   minute: "2-digit",
@@ -141,14 +119,14 @@ const ReceiptPDF: React.FC<Props> = ({ receipt }) => {
               </p>
             </td>
             <td style={{ border: "1px solid #ccc", padding: 8 }}>
-              <p style={{ fontWeight: "bold" }}>Payment Method:</p>
-              <p>{"Bank Transfer"} </p>
+              <p style={{ fontWeight: "bold" }}>Distribution Amount:</p>
+              <p>AED {distributionAmount.toLocaleString()} </p>
             </td>
           </tr>
           <tr>
             <td style={{ border: "1px solid #ccc", padding: 8 }}>
-              <p style={{ fontWeight: "bold" }}>Total Amount:</p>
-              <p>AED {commitmentAmount.toLocaleString()} </p>
+              <p style={{ fontWeight: "bold" }}>Description:</p>
+              <p>{description} </p>
             </td>
           </tr>
         </tbody>
@@ -157,4 +135,4 @@ const ReceiptPDF: React.FC<Props> = ({ receipt }) => {
   );
 };
 
-export default ReceiptPDF;
+export default DistributionNoticePDF;

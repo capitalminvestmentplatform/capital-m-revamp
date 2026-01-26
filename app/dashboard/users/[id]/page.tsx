@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,6 +28,11 @@ const formSchema = z.object({
   firstName: z.string().optional(),
   lastName: z.string().optional(),
   phone: z.string().optional(),
+  username: z
+    .string()
+    .min(3, "Username must be at least 3 characters")
+    .optional(),
+  email: z.string().email("Invalid email address").optional(),
 });
 
 const pinSchema = z
@@ -47,7 +51,7 @@ const pinSchema = z
 
 const EditUserPage = () => {
   const params = useParams();
-  const { id } = params;
+  const { id } = params as { id: string };
 
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -58,16 +62,16 @@ const EditUserPage = () => {
   const {
     register,
     handleSubmit,
-    setValue,
-    watch,
     formState: { errors },
     reset,
-  } = useForm({
+  } = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       firstName: "",
       lastName: "",
       phone: "",
+      username: "",
+      email: "",
     },
   });
 
@@ -76,12 +80,13 @@ const EditUserPage = () => {
     handleSubmit: handlePinSubmit,
     formState: { errors: pinErrors },
     reset: pinReset,
-  } = useForm({
+  } = useForm<z.infer<typeof pinSchema>>({
     resolver: zodResolver(pinSchema),
   });
 
   useEffect(() => {
     getUserProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getUserProfile = async () => {
@@ -97,15 +102,18 @@ const EditUserPage = () => {
         toast.error(response.message);
         throw new Error(response.message);
       }
-      const user = response.data;
+
+      const fetchedUser: User = response.data;
 
       reset({
-        firstName: user.firstName || "",
-        lastName: user.lastName || "",
-        phone: user.phone || "",
+        firstName: fetchedUser.firstName || "",
+        lastName: fetchedUser.lastName || "",
+        phone: fetchedUser.phone || "",
+        username: fetchedUser.username || "",
+        email: fetchedUser.email || "",
       });
 
-      setUser(user);
+      setUser(fetchedUser);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching user profile:", error);
@@ -113,7 +121,7 @@ const EditUserPage = () => {
     }
   };
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
     setLoadingEditProfile(true);
 
     try {
@@ -131,8 +139,7 @@ const EditUserPage = () => {
       }
 
       toast.success(response.message);
-      reset(); // Reset form on success
-      getUserProfile(); // Refresh user profile data
+      getUserProfile(); // refresh
     } catch (error: any) {
       // toast.error(error.message || "Something went wrong");
     } finally {
@@ -140,7 +147,7 @@ const EditUserPage = () => {
     }
   };
 
-  const onPinSubmit = async (data: any) => {
+  const onPinSubmit = async (data: z.infer<typeof pinSchema>) => {
     setLoadingEditPin(true);
 
     try {
@@ -158,13 +165,14 @@ const EditUserPage = () => {
       }
 
       toast.success(response.message);
-      reset(); // Reset form on success
+      pinReset(); // reset pin form (better than reset() which resets profile form)
     } catch (error: any) {
       // toast.error(error.message || "Something went wrong");
     } finally {
       setLoadingEditPin(false);
     }
   };
+
   return (
     <div className="flex flex-col items-center p-6">
       <Card className="w-full shadow-lg rounded-2xl">
@@ -191,6 +199,7 @@ const EditUserPage = () => {
                       </p>
                     )}
                   </div>
+
                   <div>
                     <Label>Last Name</Label>
                     <Input {...register("lastName")} />
@@ -200,14 +209,29 @@ const EditUserPage = () => {
                       </p>
                     )}
                   </div>
+
+                  {/* ✅ NOW EDITABLE */}
                   <div>
                     <Label>Username</Label>
-                    <Input value={user.username} disabled />
+                    <Input {...register("username")} />
+                    {errors.username && (
+                      <p className="text-red-500 text-sm">
+                        {errors.username.message}
+                      </p>
+                    )}
                   </div>
+
+                  {/* ✅ NOW EDITABLE */}
                   <div>
                     <Label>Email</Label>
-                    <Input value={user.email} disabled />
+                    <Input {...register("email")} />
+                    {errors.email && (
+                      <p className="text-red-500 text-sm">
+                        {errors.email.message}
+                      </p>
+                    )}
                   </div>
+
                   <div>
                     <Label>Phone</Label>
                     <Input {...register("phone")} />
@@ -217,15 +241,18 @@ const EditUserPage = () => {
                       </p>
                     )}
                   </div>
+
                   <div>
                     <Label>Role</Label>
                     <Input value={user.role} disabled />
                   </div>
+
                   <div>
                     <Label>Client Code</Label>
                     <Input value={user.clientCode || "N/A"} disabled />
                   </div>
                 </div>
+
                 <CustomButton
                   type="submit"
                   classes="mt-6 bg-primaryBG"

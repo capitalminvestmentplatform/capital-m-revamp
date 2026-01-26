@@ -9,6 +9,7 @@ const ReceiptSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Commitment",
     },
+
     // Reference to the Product model
     pId: {
       type: Schema.Types.ObjectId,
@@ -23,6 +24,9 @@ const ReceiptSchema = new Schema(
 
     pdf: {
       type: String,
+    },
+    commitmentAmount: {
+      type: Number,
     },
     send: {
       type: Boolean,

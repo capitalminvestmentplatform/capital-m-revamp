@@ -13,7 +13,7 @@ import Footer from "./Footer";
 
 interface ReceiptSendToClientEmailProps {
   username: string;
-  title: string;
+  title?: string;
   receiptUrl: string;
   commitmentAmount: number;
   receiptId: string;
@@ -32,7 +32,9 @@ const ReceiptSendToClient: React.FC<ReceiptSendToClientEmailProps> = ({
     <Html>
       <Head />
       <Body style={main}>
-        <Preview>Receipt received for ${title} - Capital M</Preview>
+        <Preview>
+          Receipt received {title ? `for ${title}` : ""} - Capital M
+        </Preview>
         <Container style={container}>
           <Section style={logoContainer}>
             <Img
@@ -55,10 +57,12 @@ const ReceiptSendToClient: React.FC<ReceiptSendToClientEmailProps> = ({
             <span>Receipt Details:</span>
           </Text>
 
-          <Text style={text}>
-            Investment Title:{" "}
-            <span style={{ fontWeight: "bold" }}>{title}</span>
-          </Text>
+          {title && (
+            <Text style={text}>
+              Investment Title:{" "}
+              <span style={{ fontWeight: "bold" }}>{title}</span>
+            </Text>
+          )}
           <Text style={text}>
             Amount Received:{" "}
             <span style={{ fontWeight: "bold" }}>

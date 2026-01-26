@@ -1,10 +1,17 @@
 "use client";
-import { getLoggedInUser, uploadFileToCloudinary } from "@/utils/client";
+import {
+  convertImageUrlToBase64,
+  getLoggedInUser,
+  uploadFileToCloudinary,
+} from "@/utils/client";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import DataTable from "./DataTable";
 import { AddDistributionNoticeModal } from "@/app/components/modals/AddDistributionNoticeModal";
 import { Input } from "@/components/ui/input";
+import DistributionNoticePDF from "@/app/components/pdfs/DistributionNotice";
+import html2pdf from "html2pdf.js";
+import ReactDOMServer from "react-dom/server";
 
 const DistributionNoticesPage = () => {
   const loggedInUser = getLoggedInUser();
@@ -80,47 +87,112 @@ const DistributionNoticesPage = () => {
     }
   };
 
-  const handleAddDistributionNotice = async (data: any) => {
+  type NoticeInput = {
+    userId: string;
+    commitmentName?: string | null;
+    distributionDate: string;
+    distributionAmount: number;
+    description?: string;
+    pdf?: string | null;
+  };
+  type Row = {
+    userId: string;
+    username: string;
+    clientCode: string;
+    distributionAmount: string; // from form
+    distributionDate: string;
+    description?: string;
+    commitmentName?: string; // if you add it in UI later
+  };
+
+  const generateAndUploadDistributionPDF = async (row: any) => {
     try {
-      const file = new File([data.pdf?.[0]], "distribution-notice.pdf", {
-        type: "application/pdf",
-      });
-      let pdfUrl = "";
+      const logoUrl =
+        "https://res.cloudinary.com/dvm9wuu3f/image/upload/v1741172718/logo_gqnslm.png";
+      const logoB64 = (await convertImageUrlToBase64(logoUrl)) ?? "";
 
-      if (file) {
-        pdfUrl =
-          (await uploadFileToCloudinary(file, "distribution-notices")) ?? "";
-      }
+      const htmlString = ReactDOMServer.renderToStaticMarkup(
+        <DistributionNoticePDF
+          distributionNotice={{
+            ...row,
+            logoB64,
+          }}
+        />
+      );
 
-      const payload = {
-        userId: data.userId,
-        commitmentName: data.commitmentName,
-        distributionAmount: +data.distributionAmount,
-        distributionDate: data.distributionDate,
-        description: data.description || "",
-        pdf: pdfUrl,
+      const pdfElement = document.createElement("div");
+      pdfElement.innerHTML = htmlString;
+
+      const opt = {
+        margin: 0.5,
+        filename: `distribution-${row.clientCode}-${row.username}-${row.distributionDate}.pdf`,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: "in", format: "a4", orientation: "portrait" as const },
       };
 
-      const res = await fetch(`/api/distribution-notices`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
+      const pdfBlob = await html2pdf()
+        .from(pdfElement)
+        .set(opt)
+        .outputPdf("blob");
+
+      const file = new File([pdfBlob], opt.filename, {
+        type: "application/pdf",
       });
 
-      const response = await res.json();
-      if (response.statusCode !== 201) {
-        toast.error(response.message);
-        return false;
-      }
+      // use clientCode-based folder (you don't have email here)
+      const folder = `distribution-notices/${row.clientCode}`;
+      const pdfUrl = (await uploadFileToCloudinary(file, folder)) ?? "";
 
-      toast.success(response.message);
-      fetchDistributionNotices();
-      return true;
-    } catch (error) {
-      return false;
+      if (!pdfUrl) throw new Error("PDF upload returned empty URL");
+
+      return pdfUrl;
+    } catch (e) {
+      console.error(e);
+      toast.error(`PDF generation/upload failed for ${row.clientCode}`);
+      return "";
     }
+  };
+
+  const handleAddDistributionNotice = async (rows: Row[]) => {
+    console.log("rows", rows);
+    // Generate + upload PDFs
+    const pdfUrls = await Promise.all(
+      rows.map((r) => generateAndUploadDistributionPDF(r))
+    );
+
+    // Attach PDF + convert amount to number + rename key to "pdf"
+    const distributionNotices: NoticeInput[] = rows.map((r, idx) => ({
+      userId: r.userId,
+      commitmentName: r.commitmentName ?? null,
+      distributionDate: r.distributionDate,
+      distributionAmount: Number(r.distributionAmount), // backend expects number
+      description: r.description ?? "",
+      pdf: pdfUrls[idx] ? pdfUrls[idx] : null,
+    }));
+
+    // If you want to fail hard when any PDF failed:
+    const pdfFailed = distributionNotices.some((n) => !n.pdf);
+    if (pdfFailed) {
+      toast.error("Some PDFs failed to upload. Please try again.");
+      return { ok: false };
+    }
+
+    const res = await fetch("/api/distribution-notices", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ distributionNotices }),
+    });
+
+    const json = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      toast.error(json?.message || "Failed to create distribution notices");
+      return { ok: false, error: json };
+    }
+
+    toast.success("Distribution Notices added successfully!");
+    return { ok: true, data: json };
   };
 
   const handleEditDistributionNotice = async (id: string, data: any) => {
@@ -197,18 +269,18 @@ const DistributionNoticesPage = () => {
   const tableCols =
     role === "Admin"
       ? [
-          "Completed Commitment",
           "Username",
           "Distribution Amount (AED)",
           "Distribution Date",
           "Description",
+          "PDF",
           "Action",
         ]
       : [
-          "Completed Commitment",
           "Distribution Amount (AED)",
           "Distribution Date",
           "Description",
+          "PDF",
         ];
 
   return (
@@ -224,7 +296,7 @@ const DistributionNoticesPage = () => {
           {isAdmin && (
             <AddDistributionNoticeModal
               users={users}
-              commitments={commitments}
+              // commitments={commitments}
               onSubmit={handleAddDistributionNotice}
             />
           )}

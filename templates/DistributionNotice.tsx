@@ -14,7 +14,6 @@ import Footer from "./Footer";
 interface DistributionNoticeEmailProps {
   name: string;
   clientCode: string;
-  commitmentName: string;
   description: string;
   distributionAmount: number;
 }
@@ -22,7 +21,6 @@ interface DistributionNoticeEmailProps {
 const DistributionNotice: React.FC<DistributionNoticeEmailProps> = ({
   name,
   clientCode,
-  commitmentName,
   distributionAmount,
   description,
 }) => {
@@ -30,9 +28,7 @@ const DistributionNotice: React.FC<DistributionNoticeEmailProps> = ({
     <Html>
       <Head />
       <Body style={main}>
-        <Preview>
-          Distribution Notice received for {commitmentName} - Capital M
-        </Preview>
+        <Preview>Distribution Notice received - Capital M</Preview>
         <Container style={container}>
           <Section style={logoContainer}>
             <Img
@@ -49,13 +45,6 @@ const DistributionNotice: React.FC<DistributionNoticeEmailProps> = ({
             We have made a distribution to your registered bank account with
             Capital M.
           </Text>
-
-          {commitmentName && (
-            <Text style={text}>
-              Investment Name:{" "}
-              <span style={{ fontWeight: "bold" }}>{commitmentName}</span>
-            </Text>
-          )}
 
           <Text style={text}>
             Distribution Amount:{" "}

@@ -96,11 +96,19 @@ const UsersPage = () => {
     }
   };
 
-  const sendEmail = async (id: string) => {
+  const sendEmail = async (user: Record<string, any>) => {
     try {
-      const res = await fetch(`/api/send-email-to-user/${id}`, {
+      const res = await fetch(`/api/send-email-to-user`, {
         method: "POST",
         credentials: "include",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          id: user._id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          phone: user.phone,
+        }),
       });
 
       const response = await res.json();
@@ -166,6 +174,7 @@ const UsersPage = () => {
               "Email",
               "Phone",
               "Role",
+              "Invite",
               "Actions",
             ]}
             tableRows={users}

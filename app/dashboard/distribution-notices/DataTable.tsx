@@ -68,9 +68,9 @@ const DataTable: React.FC<DataTableProps> = ({
       <TableBody>
         {filteredRows.map((row, index) => (
           <TableRow key={index}>
-            <TableCell>
+            {/* <TableCell>
               {row.commitmentName ? row.commitmentName : "-"}
-            </TableCell>
+            </TableCell> */}
             {role === "Admin" && (
               <TableCell>
                 {row.clientCode ? `${row.clientCode} ${row.username}` : "-"}
@@ -101,6 +101,20 @@ const DataTable: React.FC<DataTableProps> = ({
               )}
             </TableCell>
 
+            <TableCell>
+              {row.pdf ? (
+                <Link
+                  href={row?.pdf}
+                  target="_blank"
+                  className="text-xs bg-green-200 text-green-600 px-3 py-1 rounded-md"
+                >
+                  Download
+                </Link>
+              ) : (
+                "-"
+              )}
+            </TableCell>
+
             <TableCell className="">
               <div className="flex gap-2">
                 {role === "Admin" && (
@@ -114,7 +128,7 @@ const DataTable: React.FC<DataTableProps> = ({
                         <Trash size={16} className="text-red-600" />
                       </button>
                     </ConfirmModal>
-                    <EditDistributionNoticeModal
+                    {/* <EditDistributionNoticeModal
                       distribution={{
                         _id: row._id,
                         userId: row.userId,
@@ -126,7 +140,7 @@ const DataTable: React.FC<DataTableProps> = ({
                         pdf: row.pdf,
                       }}
                       onSubmit={handleEdit}
-                    />
+                    /> */}
                   </>
                 )}
               </div>

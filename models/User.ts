@@ -73,6 +73,10 @@ const UserSchema = new Schema(
       type: Date,
       default: Date.now,
     },
+    invite: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

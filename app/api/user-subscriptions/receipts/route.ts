@@ -8,37 +8,43 @@ export async function GET() {
   try {
     await connectToDatabase();
 
-    // Fetch all products and populate the category field (only 'name')
     const receipts = await Receipt.find()
       .sort({ createdAt: -1 })
       .populate({
         path: "commitmentId",
-        select: "commitmentAmount status", // grab raw fields
+        select: "commitmentAmount status",
       })
       .populate({
         path: "userId",
-        select: "firstName lastName clientCode email", // grab raw fields
+        select: "firstName lastName clientCode email",
       })
       .populate({
         path: "pId",
-        select: "title featuredImage productId", // raw fields
+        select: "title featuredImage productId",
       })
       .lean();
 
-    // Post-process each commitment
     const formattedReceipts = receipts.map((s) => {
-      const { userId, pId, commitmentId, ...rest } = s;
+      const { userId, pId, commitmentId, commitmentAmount, ...rest } = s;
 
       return {
         ...rest,
+
+        // user info
         username: `${userId?.firstName || ""} ${userId?.lastName || ""}`.trim(),
         clientCode: userId?.clientCode || "",
         email: userId?.email || "",
+
+        // product info
         title: pId?.title || "",
         thumbnail: pId?.featuredImage || "",
         productId: pId?.productId || "",
-        commitmentAmount: commitmentId?.commitmentAmount || 0,
-        status: commitmentId?.status,
+
+        // commitment handling (IMPORTANT FIX)
+        commitmentAmount:
+          commitmentId?.commitmentAmount ?? commitmentAmount ?? 0,
+
+        status: commitmentId?.status ?? rest?.status,
       };
     });
 
