@@ -9,7 +9,7 @@ import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import html2pdf from "html2pdf.js"; // npm install html2pdf.js
+// import html2pdf from "html2pdf.js"; // npm install html2pdf.js
 import ReactDOMServer from "react-dom/server";
 import { CapitalCallProps } from "@/types/capitalCalls";
 import CapitalCallPDF from "@/app/components/pdfs/CapitalCall";
@@ -123,7 +123,7 @@ const ReceiptPage = () => {
       logoB64 = (await convertImageUrlToBase64(logoUrl)) ?? "";
 
       const htmlString = ReactDOMServer.renderToStaticMarkup(
-        <ReceiptPDF receipt={{ ...receipt, logoB64 }} />
+        <ReceiptPDF receipt={{ ...receipt, logoB64 }} />,
       );
       const pdfElement = document.createElement("div");
       pdfElement.innerHTML = htmlString;
@@ -135,7 +135,8 @@ const ReceiptPage = () => {
         html2canvas: { scale: 2 },
         jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
       };
-
+      const mod: any = await import("html2pdf.js");
+      const html2pdf = mod?.default ?? mod;
       const pdfBlob = await html2pdf()
         .from(pdfElement)
         .set(opt)

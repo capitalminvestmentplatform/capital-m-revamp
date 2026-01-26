@@ -9,7 +9,7 @@ import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import html2pdf from "html2pdf.js"; // npm install html2pdf.js
+// import html2pdf from "html2pdf.js"; // npm install html2pdf.js
 import ReactDOMServer from "react-dom/server";
 import { CapitalCallProps } from "@/types/capitalCalls";
 import CapitalCallPDF from "@/app/components/pdfs/CapitalCall";
@@ -47,7 +47,7 @@ const CapitalCallPage = () => {
   const isAdmin = loggedInUser?.role === "Admin";
 
   const [capitalCall, setCapitalCall] = useState<CapitalCallProps>(
-    {} as CapitalCallProps
+    {} as CapitalCallProps,
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -72,7 +72,7 @@ const CapitalCallPage = () => {
   const fetchCapitalCall = async () => {
     try {
       const response = await fetch(
-        `/api/user-subscriptions/capital-calls/${id}`
+        `/api/user-subscriptions/capital-calls/${id}`,
       );
 
       const result = await response.json();
@@ -119,7 +119,7 @@ const CapitalCallPage = () => {
             swiftCode,
             branch,
           }),
-        }
+        },
       );
 
       const response = await res.json();
@@ -166,7 +166,7 @@ const CapitalCallPage = () => {
       logoB64 = (await convertImageUrlToBase64(logoUrl)) ?? "";
 
       const htmlString = ReactDOMServer.renderToStaticMarkup(
-        <CapitalCallPDF capitalCall={{ ...capitalCall, logoB64, data }} />
+        <CapitalCallPDF capitalCall={{ ...capitalCall, logoB64, data }} />,
       );
       const pdfElement = document.createElement("div");
       pdfElement.innerHTML = htmlString;
@@ -178,7 +178,8 @@ const CapitalCallPage = () => {
         html2canvas: { scale: 2 },
         jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
       };
-
+      const mod: any = await import("html2pdf.js");
+      const html2pdf = mod?.default ?? mod;
       const pdfBlob = await html2pdf()
         .from(pdfElement)
         .set(opt)
@@ -191,7 +192,7 @@ const CapitalCallPage = () => {
       const capitalCallPdf =
         (await uploadFileToCloudinary(
           file,
-          `capital-calls/${capitalCall.email}`
+          `capital-calls/${capitalCall.email}`,
         )) ?? "";
 
       return capitalCallPdf;

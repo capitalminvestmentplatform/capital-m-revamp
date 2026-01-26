@@ -9,7 +9,7 @@ import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import html2pdf from "html2pdf.js"; // npm install html2pdf.js
+// import html2pdf from "html2pdf.js"; // npm install html2pdf.js
 import SignaturePad from "signature_pad";
 import { SubscriptionProps } from "@/types/subscriptions";
 import ReactDOMServer from "react-dom/server";
@@ -27,7 +27,7 @@ const SubscriptionPage = () => {
   const signaturePadRef = useRef<SignaturePad | null>(null);
 
   const [subscription, setSubscription] = useState<SubscriptionProps>(
-    {} as SubscriptionProps
+    {} as SubscriptionProps,
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -69,7 +69,7 @@ const SubscriptionPage = () => {
   const fetchSubscription = async () => {
     try {
       const response = await fetch(
-        `/api/user-subscriptions/subscriptions/${id}`
+        `/api/user-subscriptions/subscriptions/${id}`,
       );
 
       const result = await response.json();
@@ -106,7 +106,7 @@ const SubscriptionPage = () => {
             title,
             productId,
           }),
-        }
+        },
       );
 
       const response = await res.json();
@@ -181,7 +181,7 @@ const SubscriptionPage = () => {
       const signatureUrl =
         (await uploadFileToCloudinary(
           file,
-          `signatures/${subscription.email}`
+          `signatures/${subscription.email}`,
         )) ?? "";
 
       generateAndUploadPDF(username, signatureUrl, title);
@@ -194,7 +194,7 @@ const SubscriptionPage = () => {
   const generateAndUploadPDF = async (
     username: string,
     signatureUrl: string,
-    title: string
+    title: string,
   ) => {
     try {
       const logoUrl =
@@ -207,7 +207,7 @@ const SubscriptionPage = () => {
       const htmlString = ReactDOMServer.renderToStaticMarkup(
         <SignedSubscriptionPDF
           subscription={{ ...subscription, logoB64, signB64 }}
-        />
+        />,
       );
       const pdfElement = document.createElement("div");
       pdfElement.innerHTML = htmlString;
@@ -219,7 +219,8 @@ const SubscriptionPage = () => {
         html2canvas: { scale: 2 },
         jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
       };
-
+      const mod: any = await import("html2pdf.js");
+      const html2pdf = mod?.default ?? mod;
       const pdfBlob = await html2pdf()
         .from(pdfElement)
         .set(opt)
@@ -232,7 +233,7 @@ const SubscriptionPage = () => {
       const signedSubscription =
         (await uploadFileToCloudinary(
           file,
-          `signed-subscriptions/${subscription.email}`
+          `signed-subscriptions/${subscription.email}`,
         )) ?? "";
 
       const res = await fetch(
@@ -245,7 +246,7 @@ const SubscriptionPage = () => {
             username,
             title,
           }),
-        }
+        },
       );
 
       const response = await res.json();

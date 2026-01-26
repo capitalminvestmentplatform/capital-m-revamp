@@ -11,7 +11,7 @@ import DataTable from "./DataTable";
 import { Input } from "@/components/ui/input";
 import { AddReceiptModal } from "@/app/components/modals/AddReceiptModal";
 import ReceiptPDF from "@/app/components/pdfs/Receipt";
-import html2pdf from "html2pdf.js";
+// import html2pdf from "html2pdf.js";
 import ReactDOMServer from "react-dom/server";
 
 const ReceiptsPage = () => {
@@ -99,7 +99,7 @@ const ReceiptsPage = () => {
             createdAt,
             receiptId,
           }),
-        }
+        },
       );
 
       const response = await res.json();
@@ -141,7 +141,7 @@ const ReceiptsPage = () => {
             ...row,
             logoB64,
           }}
-        />
+        />,
       );
 
       const pdfElement = document.createElement("div");
@@ -154,7 +154,8 @@ const ReceiptsPage = () => {
         html2canvas: { scale: 2 },
         jsPDF: { unit: "in", format: "a4", orientation: "portrait" as const },
       };
-
+      const mod: any = await import("html2pdf.js");
+      const html2pdf = mod?.default ?? mod;
       const pdfBlob = await html2pdf()
         .from(pdfElement)
         .set(opt)
@@ -207,7 +208,7 @@ const ReceiptsPage = () => {
     console.log("rows", rows);
     // Generate + upload PDFs
     const pdfUrls = await Promise.all(
-      rowsWithReceiptId.map((r) => generateAndUploadReceiptPDF(r))
+      rowsWithReceiptId.map((r) => generateAndUploadReceiptPDF(r)),
     );
 
     // Attach PDF + convert amount to number + rename key to "pdf"
