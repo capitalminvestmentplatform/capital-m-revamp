@@ -10,7 +10,6 @@ import DataTable from "./DataTable";
 import { AddDistributionNoticeModal } from "@/app/components/modals/AddDistributionNoticeModal";
 import { Input } from "@/components/ui/input";
 import DistributionNoticePDF from "@/app/components/pdfs/DistributionNotice";
-import html2pdf from "html2pdf.js";
 import ReactDOMServer from "react-dom/server";
 
 const DistributionNoticesPage = () => {
@@ -117,7 +116,7 @@ const DistributionNoticesPage = () => {
             ...row,
             logoB64,
           }}
-        />
+        />,
       );
 
       const pdfElement = document.createElement("div");
@@ -130,6 +129,9 @@ const DistributionNoticesPage = () => {
         html2canvas: { scale: 2 },
         jsPDF: { unit: "in", format: "a4", orientation: "portrait" as const },
       };
+
+      const mod: any = await import("html2pdf.js");
+      const html2pdf = mod?.default ?? mod;
 
       const pdfBlob = await html2pdf()
         .from(pdfElement)
@@ -158,7 +160,7 @@ const DistributionNoticesPage = () => {
     console.log("rows", rows);
     // Generate + upload PDFs
     const pdfUrls = await Promise.all(
-      rows.map((r) => generateAndUploadDistributionPDF(r))
+      rows.map((r) => generateAndUploadDistributionPDF(r)),
     );
 
     // Attach PDF + convert amount to number + rename key to "pdf"
@@ -205,7 +207,7 @@ const DistributionNoticesPage = () => {
         });
         const uploaded = await uploadFileToCloudinary(
           file,
-          "distribution-notices"
+          "distribution-notices",
         );
         pdfUrl = uploaded ?? "";
       }
