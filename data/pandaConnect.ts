@@ -281,14 +281,7 @@ export const malcoAssets = [
     assetName: "Jadwa 355",
     category: "Cash",
   },
-  {
-    longName: "M1 SAUDI HOSPITALITY 7.5% 23/12/2024",
-    isin: "M00146217831",
-    assetName: "Saudi Hospitality 7.5%",
-    subCategory: "Wakala Investment",
-    pandaId: 146217831,
-    category: "Fixed income",
-  },
+
   {
     longName: "Unknown counterpart 202105100018",
     pandaId: 143019519,
