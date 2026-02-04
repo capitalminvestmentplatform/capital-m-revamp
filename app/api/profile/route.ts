@@ -26,7 +26,7 @@ export async function PUT(req: NextRequest) {
     await connectToDatabase();
 
     const decoded: any = await loggedIn();
-    const { userId, firstName, lastName, phone } = await req.json();
+    const { userId, firstName, lastName, phone, email } = await req.json();
 
     // Determine which user to update (self or target user by admin)
     const targetUserId =
@@ -42,6 +42,7 @@ export async function PUT(req: NextRequest) {
     if (firstName) user.firstName = firstName;
     if (lastName) user.lastName = lastName;
     if (phone) user.phone = phone;
+    if (email) user.email = email;
 
     // Save the updated user details
     await user.save();
