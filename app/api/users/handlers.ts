@@ -84,7 +84,7 @@ const getPandaConnectPortfolios = async () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: "3114" }),
-      }
+      },
     );
 
     const response = await res.json();
@@ -144,12 +144,15 @@ export async function createUser(req: NextRequest) {
     if (existingUser) {
       return sendErrorResponse(409, "User already exists");
     }
-
-    const portfolios = await getPandaConnectPortfolios();
-    if (!portfolios) {
-      return sendErrorResponse(500, "Failed to fetch portfolios");
+    let portfolios;
+    let portfolio;
+    if (role !== "Admin") {
+      portfolios = await getPandaConnectPortfolios();
+      if (!portfolios) {
+        return sendErrorResponse(500, "Failed to fetch portfolios");
+      }
+      portfolio = portfolios.find((p: any) => p.name.includes(clientCode));
     }
-    const portfolio = portfolios.find((p: any) => p.name.includes(clientCode));
 
     // if (!portfolio) {
     //   return sendErrorResponse(
@@ -164,7 +167,7 @@ export async function createUser(req: NextRequest) {
       jwtSecret,
       {
         expiresIn: "24h",
-      }
+      },
     );
 
     const newUser = new User({
@@ -185,7 +188,7 @@ export async function createUser(req: NextRequest) {
 
     await welcomeEmail(
       { firstName, lastName, email, verificationToken, password },
-      "Welcome to Capital M Investment Platform"
+      "Welcome to Capital M Investment Platform",
     );
 
     const admins = await User.find({
