@@ -144,14 +144,13 @@ export async function createUser(req: NextRequest) {
     if (existingUser) {
       return sendErrorResponse(409, "User already exists");
     }
-    let portfolios;
-    let portfolio;
+    let portfolios = [];
+    let portfolio = null;
     if (role !== "Admin") {
       portfolios = await getPandaConnectPortfolios();
-      if (!portfolios) {
-        return sendErrorResponse(500, "Failed to fetch portfolios");
-      }
-      portfolio = portfolios.find((p: any) => p.name.includes(clientCode));
+
+      if (portfolios !== null && portfolios.length > 0)
+        portfolio = portfolios.find((p: any) => p.name.includes(clientCode));
     }
 
     // if (!portfolio) {
@@ -181,7 +180,7 @@ export async function createUser(req: NextRequest) {
       role,
       verificationToken,
       isVerified: true,
-      portfolioId: portfolio.portfolio_id ? portfolio.portfolio_id : undefined,
+      portfolioId: portfolio ? portfolio.portfolio_id : undefined,
     });
 
     await newUser.save();
