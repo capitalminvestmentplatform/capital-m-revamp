@@ -86,7 +86,7 @@ function buildMonthYearSearch(search: string) {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ userId: string }> }
+  { params }: { params: Promise<{ userId: string }> },
 ) {
   try {
     await connectToDatabase();
@@ -122,7 +122,7 @@ export async function GET(
     // Helper to build the shared aggregation (for month/year sorts)
     const buildMonthAwarePipeline = (
       match: any,
-      sortStage: Record<string, 1 | -1>
+      sortStage: Record<string, 1 | -1>,
     ) => {
       const months = [
         "jan",
@@ -167,56 +167,31 @@ export async function GET(
       ] as any[];
     };
 
-    // We need aggregation for month and year to get calendar-correct month order
-    if (sortBy === "month" || sortBy === "year") {
-      if (!Types.ObjectId.isValid(userId)) {
-        return sendErrorResponse(400, "Invalid userId");
-      }
-
-      const match = {
-        userId: new Types.ObjectId(userId),
-        ...buildMonthYearSearch(search),
-      };
-
-      const sortStage =
-        sortBy === "month"
-          ? // Group by month across years, then year within the month
-            { _monthIndex: sortOrder, year: sortOrder, createdAt: -1 }
-          : // Sort by year, then by month within each year
-            { year: sortOrder, _monthIndex: sortOrder, createdAt: -1 };
-
-      const pipeline = buildMonthAwarePipeline(match, sortStage);
-      const items = await Statement.aggregate(pipeline).exec();
-
-      const user = await User.findById(userId)
-        .select("firstName lastName clientCode")
-        .lean();
-      const username = user
-        ? `${user.firstName || ""} ${user.lastName || ""}`.trim()
-        : "";
-      const clientCode = user ? user.clientCode : "";
-
-      return sendSuccessResponse(200, "User statements fetched!", {
-        username,
-        items,
-        clientCode,
-        pagination: { total, page: safePage, limit, totalPages },
-      });
+    // Use aggregation for ALL sorts so month ordering is always calendar-correct
+    if (!Types.ObjectId.isValid(userId)) {
+      return sendErrorResponse(400, "Invalid userId");
     }
 
-    // Default path (createdAt)
-    const list = await Statement.find({
-      userId,
+    const match = {
+      userId: new Types.ObjectId(userId),
       ...buildMonthYearSearch(search),
-    })
-      .sort({ [sortBy]: sortOrder }) // only hits when sortBy === "createdAt"
-      .skip(skip)
-      .limit(limit)
-      .lean();
+    };
+
+    // Sort rules:
+    // - createdAt: still keep deterministic ordering, but PRIMARY order must be year+monthIndex (timeline)
+    // - month/year: same timeline order
+    const sortStage =
+      sortOrder === -1
+        ? { year: -1, _monthIndex: -1, createdAt: -1 }
+        : { year: 1, _monthIndex: 1, createdAt: 1 };
+
+    const pipeline = buildMonthAwarePipeline(match, sortStage);
+    const items = await Statement.aggregate(pipeline).exec();
 
     const user = await User.findById(userId)
       .select("firstName lastName clientCode")
       .lean();
+
     const username = user
       ? `${user.firstName || ""} ${user.lastName || ""}`.trim()
       : "";
@@ -224,7 +199,7 @@ export async function GET(
 
     return sendSuccessResponse(200, "User statements fetched!", {
       username,
-      items: list,
+      items,
       clientCode,
       pagination: { total, page: safePage, limit, totalPages },
     });
