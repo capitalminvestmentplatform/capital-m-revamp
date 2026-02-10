@@ -40,10 +40,10 @@ const PandaConnect = () => {
   >([]);
   const [closingBalanceData, setClosingBalanceData] = useState<number[]>([]);
   const [closingBalanceLabels, setClosingBalanceLabels] = useState<string[]>(
-    []
+    [],
   );
   const [closingBalanceColors, setClosingBalanceColors] = useState<string[]>(
-    []
+    [],
   );
   const [marketValuesData, setMarketValuesData] = useState<number[]>([]);
   const [costPriceData, setCostPriceData] = useState<number[]>([]);
@@ -104,7 +104,7 @@ const PandaConnect = () => {
 
   const createCharts = (
     userTP?: PortfolioItemProps[],
-    userCB?: AggregatedClosingBalanceProps[]
+    userCB?: AggregatedClosingBalanceProps[],
   ) => {
     let mvArray: number[] = [];
     let cpArray: number[] = [];
@@ -160,7 +160,7 @@ const PandaConnect = () => {
     };
 
     const cbMap: Record<string, number | null | undefined> = Object.fromEntries(
-      Object.entries(cb).map(([k, v]) => [normalize(k), v])
+      Object.entries(cb).map(([k, v]) => [normalize(k), v]),
     );
 
     // Build arrays from your label list, keeping only non-zero numeric values
@@ -267,7 +267,7 @@ const PandaConnect = () => {
       maData = maData.filter((item: any) => item.mv !== 0);
       maData = maData.map((item: any) => {
         const filteredAsset = malcoAssets.find(
-          (asset: any) => asset.longName === item.name
+          (asset: any) => asset.longName === item.name,
         );
         return {
           category: filteredAsset?.category,
@@ -292,7 +292,7 @@ const PandaConnect = () => {
   const filteredSubCategories = useMemo(() => {
     if (selectedCategoryId === "all") return malcoSubCategoryList;
     return malcoSubCategoryList.filter(
-      (s) => s.category === selectedCategoryId
+      (s) => s.category === selectedCategoryId,
     );
   }, [malcoSubCategoryList, selectedCategoryId]);
 
@@ -318,12 +318,12 @@ const PandaConnect = () => {
 
     return userTotalPortfolio
       .filter((item) =>
-        selectedCategoryName ? item.category === selectedCategoryName : true
+        selectedCategoryName ? item.category === selectedCategoryName : true,
       )
       .filter((item) =>
         selectedSubCategoryName
           ? item.subCategory === selectedSubCategoryName
-          : true
+          : true,
       )
       .sort((a, b) => a.category.localeCompare(b.category));
   }, [
@@ -413,7 +413,7 @@ const PandaConnect = () => {
                     {item.realEstate.toLocaleString() ?? "-"}
                   </TableCell>
                 </TableRow>
-              )
+              ),
             )}
           </TableBody>
         </Table>
@@ -477,9 +477,9 @@ const PandaConnect = () => {
                 "Asset Name",
                 "Market Value (AED)",
                 "Cost Price (AED)",
-                "Initial Cost (AED)",
+                // "Initial Cost (AED)",
                 "Unrealized Gain/Loss (AED)",
-                "Total Profit (AED)",
+                "Dividend Received (AED)",
               ].map((col, index) => (
                 <TableHead key={index} className="text-white font-bold border">
                   {col}
@@ -501,9 +501,9 @@ const PandaConnect = () => {
                   <TableCell className="border">
                     {item.costPrice.toLocaleString()}
                   </TableCell>
-                  <TableCell className="border">
+                  {/* <TableCell className="border">
                     {item.initialCost.toLocaleString()}
-                  </TableCell>
+                  </TableCell> */}
 
                   <TableCell className="border">
                     {item.marketValue

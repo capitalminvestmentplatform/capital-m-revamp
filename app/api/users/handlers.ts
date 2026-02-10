@@ -146,7 +146,7 @@ export async function createUser(req: NextRequest) {
     }
     let portfolios = [];
     let portfolio = null;
-    if (role !== "Admin") {
+    if (role !== "Admin" && clientCode) {
       portfolios = await getPandaConnectPortfolios();
 
       if (portfolios !== null && portfolios.length > 0)
