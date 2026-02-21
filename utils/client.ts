@@ -16,7 +16,7 @@ type TokenPayload = {
 };
 
 export const convertImageUrlToBase64 = async (
-  url: string
+  url: string,
 ): Promise<string | null> => {
   try {
     const res = await fetch(url, { mode: "cors" });
@@ -50,7 +50,7 @@ const base64ToFile = (base64: string, filename: string): File => {
 
 export const processTiptapImages = async (
   html: string,
-  folder: string
+  folder: string,
 ): Promise<string> => {
   const imgTagRegex = /<img[^>]+src="([^">]+)"/g;
   let match: RegExpExecArray | null;
@@ -87,7 +87,7 @@ export const processTiptapImages = async (
 
 export const uploadFileToCloudinary = async (
   file: File,
-  folder: string
+  folder: string,
 ): Promise<string | null> => {
   const url = `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/upload`;
 
@@ -95,7 +95,7 @@ export const uploadFileToCloudinary = async (
   formData.append("file", file);
   formData.append(
     "upload_preset",
-    process.env.NEXT_PUBLIC_CLOUDINARY_PRESET || ""
+    process.env.NEXT_PUBLIC_CLOUDINARY_PRESET || "",
   );
 
   const folderName = process.env.NEXT_PUBLIC_CLOUDINARY_FOLDER_NAME + folder;
@@ -143,28 +143,32 @@ export const calculatePortfolioSums = (data: PortfolioItemProps[]) => {
       .replace(/\s/g, "")
       .replace(/^(.)/, (match) => match.toLowerCase());
 
-  const aggregatedData: Record<string, AggregatedClosingBalanceProps> = {};
+  // 1️⃣ Chart Data (by subCategory)
+  const chartData: Record<string, number> = {
+    cash: 0,
+    equity: 0,
+    fixedIncome: 0,
+    realEstate: 0,
+  };
+
+  // 2️⃣ Table Data (by category → camelCase)
+  const categoryTotals: Record<string, number> = {};
 
   for (const item of data) {
-    const userKey = `${item.email}-${item.clientCode}`;
+    // Chart aggregation
     const subCategory = toCamelCase(item.subCategory);
+    chartData[subCategory] =
+      (chartData[subCategory] || 0) + (item.marketValue || 0);
 
-    if (!aggregatedData[userKey]) {
-      aggregatedData[userKey] = {
-        email: item.email,
-        clientCode: item.clientCode,
-        cash: 0,
-        equity: 0,
-        fixedIncome: 0,
-        realEstate: 0,
-      };
-    }
-
-    (aggregatedData[userKey] as any)[subCategory] =
-      (aggregatedData[userKey] as any)[subCategory] + item.marketValue || 0;
+    // Table aggregation (convert category to camelCase)
+    const categoryKey = toCamelCase(item.category);
+    categoryTotals[categoryKey] =
+      (categoryTotals[categoryKey] || 0) + (item.marketValue || 0);
   }
 
-  return Object.values(aggregatedData);
+  const tableData = [categoryTotals];
+
+  return { chartData, tableData };
 };
 
 export const fetchCategories = async () => {

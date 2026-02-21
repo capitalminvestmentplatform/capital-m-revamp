@@ -36,7 +36,7 @@ interface DataTableProps {
   uploadReceipt: (
     row: any,
     file: File,
-    index: number
+    index: number,
   ) => Promise<boolean> | boolean;
   uploadReceiptLoadingIndex: number;
   searchValue: string;
@@ -78,7 +78,15 @@ const DataTable: React.FC<DataTableProps> = ({
     const clientCodeMatch = row.clientCode
       ?.toLowerCase()
       .includes(normalizedSearch);
-    return titleMatch || clientCodeMatch;
+    const usernameMatch = row.username
+      ?.toLowerCase()
+      .includes(normalizedSearch);
+    const commitmentAmountMatch = row.commitmentAmount
+      ? row.commitmentAmount.toString().includes(normalizedSearch)
+      : false;
+    return (
+      titleMatch || clientCodeMatch || usernameMatch || commitmentAmountMatch
+    );
   });
 
   if (filteredRows.length === 0) {

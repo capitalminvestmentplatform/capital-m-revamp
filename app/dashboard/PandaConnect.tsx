@@ -15,16 +15,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
 import { malcoSubCategories } from "@/data/data";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type Category = { _id: string; name: string };
 type SubCategory = { _id: string; name: string; category: string }; // category = Category._id
@@ -42,9 +34,7 @@ const PandaConnect = () => {
   const [closingBalanceLabels, setClosingBalanceLabels] = useState<string[]>(
     [],
   );
-  const [closingBalanceColors, setClosingBalanceColors] = useState<string[]>(
-    [],
-  );
+
   const [marketValuesData, setMarketValuesData] = useState<number[]>([]);
   const [costPriceData, setCostPriceData] = useState<number[]>([]);
 
@@ -57,6 +47,30 @@ const PandaConnect = () => {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("all");
   const [selectedSubCategoryId, setSelectedSubCategoryId] =
     useState<string>("all");
+
+  const [pageLoading, setPageLoading] = useState(true);
+
+  useEffect(() => {
+    if (role === "Admin") return;
+
+    const init = async () => {
+      try {
+        setPageLoading(true);
+
+        // run in parallel
+        await Promise.all([
+          getUserData(),
+          fetchMalcoCategories(),
+          fetchMalcoSubCategories(),
+        ]);
+      } finally {
+        setPageLoading(false);
+      }
+    };
+
+    init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const fetchMalcoCategories = async () => {
     try {
@@ -94,14 +108,6 @@ const PandaConnect = () => {
     }
   };
 
-  useEffect(() => {
-    if (role !== "Admin") {
-      getUserData();
-      fetchMalcoCategories();
-      fetchMalcoSubCategories();
-    }
-  }, []);
-
   const createCharts = (
     userTP?: PortfolioItemProps[],
     userCB?: AggregatedClosingBalanceProps[],
@@ -135,19 +141,6 @@ const PandaConnect = () => {
 
     const cb = Array.isArray(currentCB) ? currentCB[0] : currentCB;
 
-    const stringToColor = (str: string) => {
-      let hash = 0;
-      for (let i = 0; i < str.length; i++) {
-        hash = str.charCodeAt(i) + ((hash << 5) - hash);
-      }
-      let color = "#";
-      for (let i = 0; i < 3; i++) {
-        const value = (hash >> (i * 8)) & 0xff; // get 0–255
-        color += ("00" + value.toString(16)).slice(-2); // pad to 2 hex digits
-      }
-      return color;
-    };
-
     // Normalize: "UAE Equity" → "uaeequity", "uAEEquity" → "uaeequity"
     const normalize = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
 
@@ -175,14 +168,12 @@ const PandaConnect = () => {
       })
       .filter((x): x is { label: string; value: number } => x !== null);
 
-    const colorsArray = rows.map((r) => stringToColor(r.label));
     const labelsArray = rows.map((r) => r.label);
     const valuesArray = rows.map((r) => r.value);
 
     // Update state
     setClosingBalanceData(valuesArray);
     setClosingBalanceLabels(labelsArray);
-    setClosingBalanceColors(colorsArray);
   };
 
   const fetchMalcoAssets = async () => {
@@ -283,18 +274,12 @@ const PandaConnect = () => {
       setUserTotalPortfolio(portfolioData);
     } catch (error) {}
     const userCB = calculatePortfolioSums(portfolioData || []);
+    setUserClosingBalance(userCB.tableData);
 
-    setUserClosingBalance(userCB);
+    createCharts(portfolioData, userCB.chartData);
 
-    createCharts(portfolioData, userCB);
+    return true;
   };
-
-  const filteredSubCategories = useMemo(() => {
-    if (selectedCategoryId === "all") return malcoSubCategoryList;
-    return malcoSubCategoryList.filter(
-      (s) => s.category === selectedCategoryId,
-    );
-  }, [malcoSubCategoryList, selectedCategoryId]);
 
   const categoryIdToName = useMemo(() => {
     const m: Record<string, string> = {};
@@ -334,16 +319,41 @@ const PandaConnect = () => {
     subCategoryIdToName,
   ]);
 
-  // Handlers: when category changes, reset subcategory
-  const handleCategoryChange = (value: string) => {
-    setSelectedCategoryId(value);
-    setSelectedSubCategoryId("all"); // reset subcategory
+  const PandaConnectSkeleton = () => {
+    return (
+      <div className="space-y-6">
+        <div className="mt-5">
+          <Skeleton className="h-6 w-32 mb-5 shimmer rounded-md" />
+
+          <div className="flex flex-col xl:flex-row gap-8 mb-5">
+            <div className="w-full xl:w-2/3 bg-white p-4 rounded">
+              <Skeleton className="h-4 w-40 mb-3 shimmer rounded-md" />
+              <Skeleton className="h-[400px] w-full shimmer rounded-md" />
+            </div>
+
+            <div className="w-full xl:w-1/3 bg-white p-4 rounded">
+              <Skeleton className="h-4 w-40 mb-3 shimmer rounded-md" />
+              <Skeleton className="h-[350px] w-full shimmer rounded-md" />
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <Skeleton className="h-6 w-44 mb-4 shimmer rounded-md" />
+          <Skeleton className="h-[120px] w-full shimmer rounded-md" />
+        </div>
+
+        <div>
+          <Skeleton className="h-6 w-44 mb-4 shimmer rounded-md" />
+          <Skeleton className="h-[240px] w-full shimmer rounded-md" />
+        </div>
+      </div>
+    );
   };
 
-  const clearFilters = () => {
-    setSelectedCategoryId("all");
-    setSelectedSubCategoryId("all");
-  };
+  if (pageLoading) {
+    return <PandaConnectSkeleton />;
+  }
 
   return (
     <div className="">
@@ -372,153 +382,177 @@ const PandaConnect = () => {
                   data: closingBalanceData,
                 }}
                 labels={closingBalanceLabels}
-                colors={closingBalanceColors}
+                colors={["#416364", "#E5E7EB", "#9CA3AF", "#D1D5DB"]}
               />
             </div>
           </div>
         </div>
       </div>
-      <hr />
       <p className="my-5 text-lg font-semibold">Closing Balance</p>
       {userClosingBalance?.length ? (
-        <Table className="border text-sm">
-          <TableHeader className="bg-primaryBG text-white text-xs">
-            <TableRow>
-              {[
-                "Cash (AED)",
-                "Fixed Income (AED)",
-                "Equity (AED)",
-                "Real Estate (AED)",
-              ].map((col, index) => (
-                <TableHead key={index} className="text-white font-bold border">
-                  {col}
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody className="text-xs">
-            {userClosingBalance.map(
-              (item: AggregatedClosingBalanceProps, index: number) => (
-                <TableRow key={index}>
-                  <TableCell className="border">
-                    {item.cash.toLocaleString() ?? "-"}
-                  </TableCell>
-                  <TableCell className="border">
-                    {item.fixedIncome.toLocaleString() ?? "-"}
-                  </TableCell>
-                  <TableCell className="border">
-                    {item.equity.toLocaleString() ?? "-"}
-                  </TableCell>
-                  <TableCell className="border">
-                    {item.realEstate.toLocaleString() ?? "-"}
-                  </TableCell>
-                </TableRow>
-              ),
-            )}
-          </TableBody>
-        </Table>
+        <div className="w-full overflow-x-auto">
+          <Table className="w-full table-fixed border text-sm min-w-[520px] sm:min-w-0">
+            <TableHeader className="bg-primaryBG text-white text-xs">
+              <TableRow>
+                {[
+                  "Cash (AED)",
+                  "Fixed Income (AED)",
+                  "Equity (AED)",
+                  "Real Estate (AED)",
+                ].map((col, index) => (
+                  <TableHead
+                    key={index}
+                    className="w-1/4 text-white font-bold border whitespace-nowrap px-3 py-2"
+                  >
+                    {col}
+                  </TableHead>
+                ))}
+              </TableRow>
+            </TableHeader>
+
+            <TableBody className="text-xs">
+              {userClosingBalance.map(
+                (item: AggregatedClosingBalanceProps, index: number) => (
+                  <TableRow key={index}>
+                    <TableCell className="w-1/4 border whitespace-nowrap px-3 py-2">
+                      {item.cash?.toLocaleString() ?? "-"}
+                    </TableCell>
+                    <TableCell className="w-1/4 border whitespace-nowrap px-3 py-2">
+                      {item.fixedIncome?.toLocaleString() ?? "-"}
+                    </TableCell>
+                    <TableCell className="w-1/4 border whitespace-nowrap px-3 py-2">
+                      {item.equity?.toLocaleString() ?? "-"}
+                    </TableCell>
+                    <TableCell className="w-1/4 border whitespace-nowrap px-3 py-2">
+                      {item.realEstate?.toLocaleString() ?? "-"}
+                    </TableCell>
+                  </TableRow>
+                ),
+              )}
+            </TableBody>
+          </Table>
+        </div>
       ) : (
         <div className="my-5 text-center text-gray-500">No Data to show</div>
       )}
       <p className="my-5 text-lg font-semibold">Total Portfolio</p>
       {/* --- NEW: Filters --- */}
       <div className="flex gap-10 flex-wrap mb-10">
-        <div className="">
-          <Label>Select Category</Label>
-          <Select
-            value={selectedCategoryId}
-            onValueChange={(v) => {
-              setSelectedCategoryId(v);
-              setSelectedSubCategoryId("all"); // reset subcat on category change
+        <div className="flex flex-wrap gap-2">
+          {/* All Category */}
+          <div
+            className={`${selectedCategoryId === "all" ? "bg-primaryBG text-white" : "bg-gray-200 text-gray-700"} text-sm px-3 py-1 rounded-md cursor-pointer`}
+            onClick={() => {
+              setSelectedCategoryId("all");
             }}
           >
-            <SelectTrigger id="category" className="w-fit min-w-60 mt-2">
-              <SelectValue placeholder="All categories" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              {malcoCategoryList.map((cat) => (
-                <SelectItem key={cat._id} value={cat._id}>
-                  {cat.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="">
-          <Label>Select Sub Category</Label>
-          <Select
-            value={selectedSubCategoryId}
-            onValueChange={setSelectedSubCategoryId}
-            // Optional: disable if no subcategories available
-            disabled={!filteredSubCategories.length}
-          >
-            <SelectTrigger id="subcategory" className="w-fit min-w-60 mt-2">
-              <SelectValue placeholder="All subcategories" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              {filteredSubCategories.map((sub) => (
-                <SelectItem key={sub._id} value={sub._id}>
-                  {sub.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            All
+          </div>
+
+          {/* Dynamic Categories */}
+          {malcoCategoryList.map((cat) => {
+            const isActive = selectedCategoryId === cat._id;
+
+            return (
+              <div
+                key={cat._id}
+                className={`${isActive ? "bg-primaryBG text-white" : "bg-gray-200 text-gray-700"} text-sm px-3 py-1 rounded-md cursor-pointer`}
+                onClick={() => {
+                  setSelectedCategoryId(cat._id);
+                }}
+              >
+                {cat.name}
+              </div>
+            );
+          })}
         </div>
       </div>
       {filteredPortfolioForTable?.length ? (
-        <Table className="border text-sm">
-          <TableHeader className="bg-primaryBG text-white text-xs">
-            <TableRow>
-              {[
-                "Category",
-                "Sub Category",
-                "Asset Name",
-                "Market Value (AED)",
-                "Cost Price (AED)",
-                // "Initial Cost (AED)",
-                "Unrealized Gain/Loss (AED)",
-                "Dividend Received (AED)",
-              ].map((col, index) => (
-                <TableHead key={index} className="text-white font-bold border">
-                  {col}
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody className="text-xs">
-            {filteredPortfolioForTable
-              .sort((a, b) => a.category.localeCompare(b.category))
-              .map((item, index) => (
-                <TableRow key={index}>
-                  <TableCell className="border">{item.category}</TableCell>
-                  <TableCell className="border">{item.subCategory}</TableCell>
-                  <TableCell className="border">{item.userAsset}</TableCell>
-                  <TableCell className="border">
-                    {item.marketValue.toLocaleString()}
-                  </TableCell>
-                  <TableCell className="border">
-                    {item.costPrice.toLocaleString()}
-                  </TableCell>
-                  {/* <TableCell className="border">
-                    {item.initialCost.toLocaleString()}
-                  </TableCell> */}
+        <div className="w-full overflow-x-auto">
+          <Table className="w-full table-fixed border text-sm min-w-[1150px] lg:min-w-0">
+            {/* ✅ reliable widths */}
+            <colgroup>
+              <col style={{ width: "360px" }} /> {/* Asset Name */}
+              <col style={{ width: "60px" }} /> {/* Category */}
+              <col style={{ width: "60px" }} /> {/* Sub Category */}
+              <col style={{ width: "60px" }} /> {/* Market Value */}
+              <col style={{ width: "60px" }} /> {/* Cost Price */}
+              <col style={{ width: "60px" }} /> {/* Unrealized */}
+              <col style={{ width: "60px" }} /> {/* Dividend */}
+            </colgroup>
 
-                  <TableCell className="border">
-                    {item.marketValue
-                      ? (item.marketValue - item.costPrice).toLocaleString()
-                      : "-"}
-                  </TableCell>
-                  <TableCell className="border">
-                    {item.costPrice
-                      ? (item.costPrice - item.initialCost).toLocaleString()
-                      : "-"}
-                  </TableCell>
-                </TableRow>
-              ))}
-          </TableBody>
-        </Table>
+            <TableHeader className="bg-primaryBG text-white text-xs">
+              <TableRow>
+                <TableHead className="text-white font-bold border whitespace-nowrap px-3 py-2">
+                  Asset Name
+                </TableHead>
+                <TableHead className="text-white font-bold border whitespace-nowrap px-3 py-2">
+                  Category
+                </TableHead>
+                <TableHead className="text-white font-bold border whitespace-nowrap px-3 py-2">
+                  Sub Category
+                </TableHead>
+                <TableHead className="text-white font-bold border whitespace-nowrap px-3 py-2 text-right">
+                  Market <br /> Value (AED)
+                </TableHead>
+                <TableHead className="text-white font-bold border whitespace-nowrap px-3 py-2 text-right">
+                  Cost <br />
+                  Price (AED)
+                </TableHead>
+                <TableHead className="text-white font-bold border whitespace-nowrap px-3 py-2 text-right">
+                  Unrealized <br />
+                  Gain/Loss (AED)
+                </TableHead>
+                <TableHead className="text-white font-bold border whitespace-nowrap px-3 py-2 text-right">
+                  Dividend <br />
+                  Received (AED)
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+
+            <TableBody className="text-xs">
+              {filteredPortfolioForTable
+                .sort((a, b) => a.category.localeCompare(b.category))
+                .map((item, index) => (
+                  <TableRow key={index}>
+                    {/* Asset name: truncate but keep full on hover */}
+                    <TableCell className="border px-3 py-2">
+                      <div className="truncate" title={item.userAsset}>
+                        {item.userAsset}
+                      </div>
+                    </TableCell>
+                    <TableCell className="border whitespace-nowrap px-3 py-2">
+                      {item.category}
+                    </TableCell>
+
+                    <TableCell className="border whitespace-nowrap px-3 py-2">
+                      {item.subCategory}
+                    </TableCell>
+
+                    <TableCell className="border whitespace-nowrap text-right px-3 py-2">
+                      {item.marketValue.toLocaleString()}
+                    </TableCell>
+
+                    <TableCell className="border whitespace-nowrap text-right px-3 py-2">
+                      {item.costPrice.toLocaleString()}
+                    </TableCell>
+
+                    <TableCell className="border whitespace-nowrap text-right px-3 py-2">
+                      {item.marketValue
+                        ? (item.marketValue - item.costPrice).toLocaleString()
+                        : "-"}
+                    </TableCell>
+
+                    <TableCell className="border whitespace-nowrap text-right px-3 py-2">
+                      {item.costPrice
+                        ? (item.costPrice - item.initialCost).toLocaleString()
+                        : "-"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+            </TableBody>
+          </Table>
+        </div>
       ) : (
         <div className="my-5 text-center">No Data to show</div>
       )}

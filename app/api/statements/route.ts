@@ -104,7 +104,7 @@ export async function GET(req: NextRequest) {
         const safe = search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
         const matchedUsers = await User.find(
           { clientCode: { $regex: safe, $options: "i" } },
-          { _id: 1 }
+          { _id: 1 },
         ).lean();
         if (matchedUsers.length) {
           orFilters.push({ userId: { $in: matchedUsers.map((u) => u._id) } });
@@ -121,7 +121,6 @@ export async function GET(req: NextRequest) {
       const safePage = Math.min(page, totalPages);
       const skip = (safePage - 1) * limit;
 
-      // We'll compute a month index for the user's latest statement for proper sorting.
       const months = [
         "jan",
         "feb",
@@ -139,7 +138,22 @@ export async function GET(req: NextRequest) {
 
       const pipeline: any[] = [
         { $match: match },
-        { $sort: { createdAt: -1 } }, // ensure $first is latest
+
+        // compute monthIndex on statement
+        {
+          $addFields: {
+            _monthIndex: {
+              $indexOfArray: [
+                months,
+                { $toLower: { $substrCP: ["$month", 0, 3] } },
+              ],
+            },
+          },
+        },
+
+        // latest = max(year, monthIndex) not createdAt
+        { $sort: { year: -1, _monthIndex: -1, createdAt: -1 } },
+
         {
           $group: {
             _id: "$userId",
@@ -147,6 +161,7 @@ export async function GET(req: NextRequest) {
             statementsCount: { $sum: 1 },
           },
         },
+
         {
           $lookup: {
             from: "users",
@@ -156,6 +171,7 @@ export async function GET(req: NextRequest) {
           },
         },
         { $unwind: "$user" },
+
         {
           $project: {
             _id: 0,
@@ -166,6 +182,10 @@ export async function GET(req: NextRequest) {
             latestYear: "$latest.year",
             latestCreatedAt: "$latest.createdAt",
             latestPdf: "$latest.pdf",
+
+            // ✅ expose monthIndex for sorting
+            _latestMonthIndex: "$latest._monthIndex",
+
             username: {
               $trim: {
                 input: {
@@ -181,21 +201,8 @@ export async function GET(req: NextRequest) {
             clientCode: "$user.clientCode",
           },
         },
-        // Compute a numeric index for latestMonth so sorting is calendar-correct
-        {
-          $addFields: {
-            _latestMonthKey: {
-              $toLower: { $substrCP: ["$latestMonth", 0, 3] },
-            },
-          },
-        },
-        {
-          $addFields: {
-            _latestMonthIndex: {
-              $indexOfArray: [months, "$_latestMonthKey"],
-            },
-          },
-        },
+
+        // UI sorting
         {
           $sort:
             sortBy === "createdAt"
@@ -216,9 +223,12 @@ export async function GET(req: NextRequest) {
                     ? { clientCode: sortOrder, latestCreatedAt: -1 }
                     : { latestCreatedAt: sortOrder },
         },
+
         { $skip: skip },
         { $limit: limit },
-        { $unset: ["_latestMonthKey", "_latestMonthIndex"] },
+
+        // remove helper
+        { $unset: ["_latestMonthIndex"] },
       ];
 
       const rows = await Statement.aggregate(pipeline).exec();
@@ -374,7 +384,7 @@ export async function POST(req: NextRequest) {
     if (existingStatement) {
       return sendErrorResponse(
         400,
-        `Statement for ${month} ${year} already exists.`
+        `Statement for ${month} ${year} already exists.`,
       );
     }
 
@@ -424,7 +434,7 @@ export async function POST(req: NextRequest) {
           name: `Statement - ${formattedDate}.pdf`,
         },
       },
-      `Statement - ${formattedDate} - Capital M`
+      `Statement - ${formattedDate} - Capital M`,
     );
 
     return sendSuccessResponse(201, "Statement added successfully!", statement);

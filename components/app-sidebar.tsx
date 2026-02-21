@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/sidebar";
 import { sideMenu } from "@/data/sideMenu";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
   const [user, setUser] = useState<{
@@ -29,6 +30,7 @@ const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
       items?: { title: string; url: string }[];
     }[]
   >([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     getUserProfile();
@@ -36,9 +38,11 @@ const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
 
   const getUserProfile = async () => {
     try {
+      setLoading(true);
+
       const res = await fetch("/api/profile", {
         method: "GET",
-        credentials: "include", // Ensures cookies are sent with the request
+        credentials: "include",
       });
 
       const response = await res.json();
@@ -55,7 +59,8 @@ const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
       setUser(user);
     } catch (error) {
       console.error("Error fetching user profile:", error);
-      return null;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -64,10 +69,31 @@ const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
       <SidebarHeader>
         <TeamSwitcher />
       </SidebarHeader>
+
       <SidebarContent>
-        <NavMain items={menu} />
+        {loading ? (
+          <div className="space-y-4 px-4 py-2">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="h-6 w-full rounded-md shimmer" />
+            ))}
+          </div>
+        ) : (
+          <NavMain items={menu} />
+        )}
       </SidebarContent>
-      <SidebarFooter>{user && <NavUser user={user} />}</SidebarFooter>
+
+      <SidebarFooter>
+        {loading ? (
+          <div className="px-4 py-3 space-y-2">
+            <Skeleton className="h-10 w-10 rounded-full shimmer" />
+            <Skeleton className="h-4 w-32 shimmer" />
+            <Skeleton className="h-3 w-24 shimmer" />
+          </div>
+        ) : (
+          user && <NavUser user={user} />
+        )}
+      </SidebarFooter>
+
       <SidebarRail />
     </Sidebar>
   );

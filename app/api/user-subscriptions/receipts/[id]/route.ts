@@ -9,7 +9,7 @@ import { NextRequest } from "next/server";
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     await connectToDatabase();
@@ -32,7 +32,7 @@ export async function DELETE(
 }
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     await connectToDatabase();
@@ -66,7 +66,11 @@ export async function GET(
       email: userId?.email || "",
       clientCode: userId?.clientCode || "",
       phone: userId?.phone || "",
-      commitmentAmount: commitmentId?.commitmentAmount || 0,
+      commitmentAmount: commitmentId?.commitmentAmount
+        ? Number(commitmentId?.commitmentAmount)
+        : receipt.commitmentAmount
+          ? Number(receipt.commitmentAmount)
+          : 0,
       status: commitmentId?.status || 0,
       commitmentDeadline: pId?.commitmentDeadline || 0,
       title: pId?.title || "",
@@ -76,7 +80,7 @@ export async function GET(
     return sendSuccessResponse(
       200,
       "Receipt fetched successfully",
-      formattedReceipt
+      formattedReceipt,
     );
   } catch (error) {
     return sendErrorResponse(500, "Internal server error", error);

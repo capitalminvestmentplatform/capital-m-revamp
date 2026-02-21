@@ -60,14 +60,14 @@ const StatementsPage = () => {
   const [userPageSize, setUserPageSize] = useState(10);
   const [userSortField, setUserSortField] = useState<
     "createdAt" | "month" | "year" | "clientCode"
-  >("createdAt");
+  >("year");
   const [userSortOrder, setUserSortOrder] = useState<"asc" | "desc">("desc");
   const [userSearch, setUserSearch] = useState("");
 
   // ===== ADMIN: grouped controller (pagination + full search/sort now) =====
   const table = useServerTable<LatestRow>({
     initialPageSize: DEFAULT_LIMIT,
-    initialSortField: "createdAt",
+    initialSortField: "year",
     initialSortOrder: "desc",
     fetcher: async ({ page, limit, search, sortBy, sortOrder }) => {
       const params = new URLSearchParams({
@@ -97,7 +97,7 @@ const StatementsPage = () => {
     limit: number,
     sortBy: "createdAt" | "month" | "year" | "clientCode",
     sortOrder: "asc" | "desc",
-    search?: string
+    search?: string,
   ) => {
     if (!myUserId) return;
     try {
@@ -115,7 +115,7 @@ const StatementsPage = () => {
         {
           method: "GET",
           credentials: "include",
-        }
+        },
       );
       const json = await res.json();
       if (json.statusCode !== 200) throw new Error(json.message);
@@ -155,7 +155,7 @@ const StatementsPage = () => {
             userPageSize,
             userSortField,
             userSortOrder,
-            userSearch
+            userSearch,
           );
           setUserPage(1);
         }
@@ -233,7 +233,7 @@ const StatementsPage = () => {
           userPageSize,
           userSortField,
           userSortOrder,
-          userSearch
+          userSearch,
         );
       }
       return true;
@@ -265,7 +265,7 @@ const StatementsPage = () => {
           userPageSize,
           userSortField,
           userSortOrder,
-          userSearch
+          userSearch,
         );
       }
       return true;
@@ -333,7 +333,7 @@ const StatementsPage = () => {
                   userPageSize,
                   userSortField,
                   userSortOrder,
-                  userSearch.trim()
+                  userSearch.trim(),
                 );
               }}
               sortField={userSortField}
@@ -346,7 +346,7 @@ const StatementsPage = () => {
                   userPageSize,
                   ff,
                   userSortOrder,
-                  userSearch.trim()
+                  userSearch.trim(),
                 );
               }}
               sortOrder={userSortOrder}
@@ -359,12 +359,12 @@ const StatementsPage = () => {
                   userPageSize,
                   userSortField,
                   o,
-                  userSearch.trim()
+                  userSearch.trim(),
                 );
               }}
               onReset={async () => {
                 setUserSearch("");
-                setUserSortField("createdAt");
+                setUserSortField("year");
                 setUserSortOrder("desc");
                 setUserPage(1);
                 await fetchSelfStatements(
@@ -372,7 +372,7 @@ const StatementsPage = () => {
                   userPageSize,
                   "createdAt",
                   "desc",
-                  ""
+                  "",
                 );
               }}
               placeholder="Search by month/year (e.g., Dec 2022)"
@@ -461,7 +461,7 @@ const StatementsPage = () => {
                   userPageSize,
                   userSortField,
                   userSortOrder,
-                  userSearch.trim()
+                  userSearch.trim(),
                 );
               }}
               pageSize={userPageSize}
@@ -473,7 +473,7 @@ const StatementsPage = () => {
                   n,
                   userSortField,
                   userSortOrder,
-                  userSearch.trim()
+                  userSearch.trim(),
                 );
               }}
             />
