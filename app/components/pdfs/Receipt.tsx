@@ -90,7 +90,7 @@ const ReceiptPDF: React.FC<Props> = ({ receipt }) => {
           )}
           <p style={{ marginBottom: 0 }}>
             <strong>Commitment Amount:</strong> AED{" "}
-            {commitmentAmount && commitmentAmount.toLocaleString()}
+            {commitmentAmount && Number(commitmentAmount).toLocaleString()}
           </p>
         </div>
         <div>
@@ -148,7 +148,7 @@ const ReceiptPDF: React.FC<Props> = ({ receipt }) => {
           <tr>
             <td style={{ border: "1px solid #ccc", padding: 8 }}>
               <p style={{ fontWeight: "bold" }}>Total Amount:</p>
-              <p>AED {commitmentAmount.toLocaleString()} </p>
+              <p>AED {Number(commitmentAmount).toLocaleString()} </p>
             </td>
           </tr>
         </tbody>

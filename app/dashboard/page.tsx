@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 
 import { toast } from "sonner";
 import { InvestmentProps } from "@/types/investments";
@@ -7,6 +7,7 @@ import Link from "next/link";
 import InvestmentCard from "../components/investments/InvestmentCard";
 import PandaConnect from "./PandaConnect";
 import { getLoggedInUser } from "@/utils/client";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const DashboardPage: React.FC = () => {
   const { role, name, email } = getLoggedInUser() || { role: "" };
@@ -152,22 +153,23 @@ const DashboardPage: React.FC = () => {
 
   return (
     <div className="container mx-auto max-w-[1440px] px-4">
-      <p className="text-2xl mb-1 font-semibold">
-        Welcome {name} - Current Statement Insights
-      </p>
-      <p className="text-sm text-gray-500 mb-5">
-        From here, you can access all your investment information and manage
-        your account portfolio.
-      </p>
-      {/* {role !== "Admin" && mostRecentStatement && (
-        <div className="w-full h-[600px] border rounded overflow-hidden">
-          <iframe
-            src={`${mostRecentStatement}#view=FitH&navpanes=0&scrollbar=0`}
-            title="Latest Statement PDF"
-            className="w-full h-full"
-          />
+      {loading ? (
+        <div className="mb-5 space-y-2">
+          <Skeleton className="h-8 w-[420px] shimmer rounded-md" />
+          <Skeleton className="h-4 w-[600px] shimmer rounded-md" />
         </div>
-      )} */}
+      ) : (
+        <>
+          <p className="text-2xl mb-1 font-semibold">
+            Welcome {name} - Current Statement Insights
+          </p>
+          <p className="text-sm text-gray-500 mb-5">
+            From here, you can access all your investment information and manage
+            your account portfolio.
+          </p>
+        </>
+      )}
+
       {role !== "Admin" && <PandaConnect />}
 
       <div className="flex flex-wrap gap-4 mb-5 mt-10">
@@ -214,7 +216,7 @@ const DashboardPage: React.FC = () => {
                   handleDelete={handleDelete}
                   role={role || "User"}
                 />
-              )
+              ),
             )}
         </div>
       )}

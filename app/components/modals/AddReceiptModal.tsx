@@ -54,6 +54,7 @@ interface Users {
   _id: string;
   clientCode: string;
   firstName: string;
+  lastName: string;
   role: string;
   email: string;
   phone: string;
@@ -92,7 +93,7 @@ export const AddReceiptModal = ({ users, onSubmit }: AddReceiptModalProps) => {
 
   const nonAdminUsers = useMemo(
     () => users?.filter((u) => u.role !== "Admin") ?? [],
-    [users]
+    [users],
   );
 
   const userMap = useMemo(() => {
@@ -137,7 +138,7 @@ export const AddReceiptModal = ({ users, onSubmit }: AddReceiptModalProps) => {
       if (idx === -1) {
         append({
           userId: u._id,
-          username: u.firstName,
+          username: u.firstName + " " + u.lastName,
           clientCode: u.clientCode,
           email: u.email,
           phone: u.phone,
@@ -234,7 +235,7 @@ export const AddReceiptModal = ({ users, onSubmit }: AddReceiptModalProps) => {
                               <Check
                                 className={cn(
                                   "mr-2 h-4 w-4",
-                                  checked ? "opacity-100" : "opacity-0"
+                                  checked ? "opacity-100" : "opacity-0",
                                 )}
                               />
                               {u.clientCode} - {u.firstName}
