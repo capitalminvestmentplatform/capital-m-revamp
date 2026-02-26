@@ -128,13 +128,7 @@ function QRResultCard({
   };
 
   return (
-    <div
-      className="rounded-2xl border p-4 space-y-4"
-      style={{
-        background: "rgba(196,160,100,0.03)",
-        borderColor: "rgba(196,160,100,0.2)",
-      }}
-    >
+    <div className="rounded-2xl border p-4 space-y-4 bg-primaryBG/5 border-primaryBG/30">
       {/* ── Header ── */}
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2">
@@ -621,13 +615,7 @@ function EditQRCard({ cert }: { cert: Certificate }) {
   };
 
   return (
-    <div
-      className="rounded-2xl border p-4 space-y-3"
-      style={{
-        background: "rgba(196,160,100,0.03)",
-        borderColor: "rgba(196,160,100,0.2)",
-      }}
-    >
+    <div className="rounded-2xl border p-4 space-y-3 bg-primaryBG/5 border-primaryBG/30">
       <p className="text-[10px] font-medium uppercase tracking-wider opacity-40">
         Current QR Code
       </p>
@@ -1005,8 +993,8 @@ const Certificates = () => {
           <Card className="shadow-xl">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#C4A06415] border border-[#C4A06425] flex items-center justify-center">
-                  <TbQrcode size={18} className="text-[#C4A064]" />
+                <div className="w-9 h-9 rounded-xl bg-primaryBG/15 border border-primaryBG/25 flex items-center justify-center">
+                  <TbQrcode size={18} className="text-primaryBG" />
                 </div>
                 <div>
                   <CardTitle className="text-base font-semibold">
