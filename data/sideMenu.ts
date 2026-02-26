@@ -26,6 +26,12 @@ export const sideMenu = [
         isActive: true,
       },
       {
+        title: "Certificates",
+        url: "/dashboard/certificates",
+        icon: Book,
+        isActive: false,
+      },
+      {
         title: "PandaConnect",
         url: "/dashboard/panda-connect",
         icon: Home,
