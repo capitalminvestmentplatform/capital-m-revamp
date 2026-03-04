@@ -382,7 +382,7 @@ const PandaConnect = () => {
                   data: closingBalanceData,
                 }}
                 labels={closingBalanceLabels}
-                colors={["#416364", "#E5E7EB", "#9CA3AF", "#D1D5DB"]}
+                colors={["#386264", "#c3ced1", "#d9a66f", "#b2d8b8"]}
               />
             </div>
           </div>
