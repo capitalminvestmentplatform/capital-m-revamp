@@ -229,14 +229,14 @@ function TotalPortfolioBarChart({ labels, dataset1, dataset2 }: Props) {
       {
         label: dataset1.label,
         data: displayDataset1,
-        borderColor: "#416364",
-        backgroundColor: "#416364",
+        borderColor: "#386264",
+        backgroundColor: "#386264",
       },
       {
         label: dataset2.label,
         data: displayDataset2,
-        borderColor: "#E5E7EB",
-        backgroundColor: "#E5E7EB",
+        borderColor: "#b2d8b8",
+        backgroundColor: "#b2d8b8",
       },
     ],
   };
