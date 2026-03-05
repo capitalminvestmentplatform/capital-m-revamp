@@ -405,7 +405,15 @@ const SubscriptionPage = () => {
             </div>
             <div className="flex items-center gap-2 px-5 py-10 border-r border-b">
               <p className="">Expected Return:</p>
-              <p className="font-semibold">{projectedReturn} %</p>
+              <p className="font-semibold">
+                {projectedReturn?.mode === "range"
+                  ? projectedReturn.type === "percentage"
+                    ? `${projectedReturn.minValue}% - ${projectedReturn.maxValue}%`
+                    : `${projectedReturn.currency} ${projectedReturn.minValue} - ${projectedReturn.currency} ${projectedReturn.maxValue}`
+                  : projectedReturn?.type === "percentage"
+                    ? `${projectedReturn.fixedValue}%`
+                    : `${projectedReturn?.currency} ${projectedReturn?.fixedValue}`}
+              </p>
             </div>
             <div className="flex items-center gap-2 px-5 py-10 border-b">
               <p className="">Category:</p>
