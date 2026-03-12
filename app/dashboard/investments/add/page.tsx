@@ -127,10 +127,8 @@ const AddInvestmentPage = () => {
 
       const res = await fetch("/api/products", {
         method: "POST",
-        body: JSON.stringify({
-          ...formattedData,
-          faqs: JSON.stringify(formattedData.faqs),
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formattedData),
       });
 
       const response = await res.json();

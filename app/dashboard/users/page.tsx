@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import Pagination from "@/app/components/Pagination";
 import SearchBar from "@/app/components/SearchBar";
 import { useServerTable } from "@/hooks/useServerTable";
+import { TableSkeleton } from "@/app/components/skeletons/TableSkeleton";
 
 const DEFAULT_LIMIT = 10;
 
@@ -147,7 +148,7 @@ const UsersPage = () => {
           onReset={() => {
             table.resetAll();
           }}
-          placeholder="Search by client code, first or last name"
+          placeholder="Search by client code, name or email"
         />
 
         {/* Add new user */}
@@ -160,7 +161,7 @@ const UsersPage = () => {
       </div>
 
       {loading ? (
-        <p className="text-center text-gray-500">Loading...</p>
+        <TableSkeleton rows={8} cols={7} showSearch={true} />
       ) : error ? (
         <p className="text-center text-red-500">{error}</p>
       ) : users.length === 0 ? (

@@ -8,6 +8,7 @@ import InvestmentCard from "../components/investments/InvestmentCard";
 import PandaConnect from "./PandaConnect";
 import { getLoggedInUser } from "@/utils/client";
 import { Skeleton } from "@/components/ui/skeleton";
+import { CardGridSkeleton } from "@/app/components/skeletons/CardGridSkeleton";
 
 const DashboardPage: React.FC = () => {
   const { role, name, email } = getLoggedInUser() || { role: "" };
@@ -200,7 +201,7 @@ const DashboardPage: React.FC = () => {
         </Link>
       </div>
       {loading ? (
-        <p className="text-center text-gray-500">Loading...</p>
+        <CardGridSkeleton cards={6} />
       ) : error ? (
         <p className="text-center text-red-500">{error}</p>
       ) : investments.length === 0 ? (

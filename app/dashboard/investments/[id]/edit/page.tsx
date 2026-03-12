@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { fetchCategories, uploadFileToCloudinary } from "@/utils/client";
+import { fetchCategories, uploadFileToCloudinary, processTiptapImages } from "@/utils/client";
 import { investmentSchema } from "../../../../components/investments/InvestmentSchema";
 import { toast } from "sonner";
 import { InvestmentForm } from "../../../../components/investments/InvestmentForm";
@@ -100,7 +100,7 @@ const EditInvestmentPage = () => {
     } catch (err: any) {
       toast.error("Failed to fetch investment data.");
       console.error(err);
-      setError(error);
+      setError(err?.message || "Failed to fetch investment data.");
     } finally {
       setLoading(false);
     }
@@ -117,6 +117,14 @@ const EditInvestmentPage = () => {
         setLoadingAction("draft");
       } else {
         setLoadingAction("publish");
+      }
+
+      // Process tiptap images in description (upload base64 images to Cloudinary)
+      if (data.description) {
+        data.description = await processTiptapImages(
+          data.description,
+          `investments/description`
+        );
       }
 
       // Upload featuredImage if it's a File

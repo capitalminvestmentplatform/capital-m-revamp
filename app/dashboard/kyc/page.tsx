@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import DataTable from "./DataTable";
 import { AddKycDocsModal } from "@/app/components/modals/AddKycDocsModal";
+import { TableSkeleton } from "@/app/components/skeletons/TableSkeleton";
 
 const KYCPage = () => {
   const loggedInUser = getLoggedInUser();
@@ -274,7 +275,7 @@ const KYCPage = () => {
         />
       </div>
       {loading ? (
-        <p className="text-center text-gray-500">Loading...</p>
+        <TableSkeleton rows={8} cols={isAdmin ? 5 : 3} showSearch={false} />
       ) : error ? (
         <p className="text-center text-red-500">{error}</p>
       ) : kycDocs.length === 0 ? (

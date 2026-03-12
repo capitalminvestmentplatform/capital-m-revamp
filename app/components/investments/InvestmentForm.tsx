@@ -197,11 +197,9 @@ export const InvestmentForm = ({
 
         <Tabs defaultValue="thumbnail" className="mx-auto mt-5">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="thumbnail" className="lg:hidden">
-              Thumbnail
-            </TabsTrigger>
-            <TabsTrigger value="thumbnail" className="hidden lg:block">
-              Thumbnail (1200x675)
+            <TabsTrigger value="thumbnail">
+              <span className="lg:hidden">Thumbnail</span>
+              <span className="hidden lg:block">Thumbnail (1200x675)</span>
             </TabsTrigger>
             <TabsTrigger value="gallery">Gallery Images</TabsTrigger>
             <TabsTrigger value="video">Video</TabsTrigger>
@@ -239,11 +237,9 @@ export const InvestmentForm = ({
         <Tabs defaultValue="document" className="mx-auto mt-5">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="document">Documents</TabsTrigger>
-            <TabsTrigger value="terms" className="lg:hidden">
-              Terms
-            </TabsTrigger>
-            <TabsTrigger value="terms" className="hidden lg:block">
-              Terms & Conditions
+            <TabsTrigger value="terms">
+              <span className="lg:hidden">Terms</span>
+              <span className="hidden lg:block">Terms & Conditions</span>
             </TabsTrigger>
             <TabsTrigger value="faqs">FAQs</TabsTrigger>
           </TabsList>
