@@ -6,6 +6,7 @@ import DataTable from "./DataTable";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Input } from "@/components/ui/input";
+import { TableSkeleton } from "@/app/components/skeletons/TableSkeleton";
 
 const NewsLetterPage = () => {
   const pathname = usePathname(); // Get the current path
@@ -98,7 +99,7 @@ const NewsLetterPage = () => {
         </div>
       </div>
       {loading ? (
-        <p className="text-center text-gray-500">Loading...</p>
+        <TableSkeleton rows={8} cols={isAdmin ? 4 : 3} showSearch={true} />
       ) : error ? (
         <p className="text-center text-red-500">{error}</p>
       ) : newsletters.length === 0 ? (

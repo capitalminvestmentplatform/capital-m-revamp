@@ -32,6 +32,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // react-icons
 import {
@@ -762,10 +763,12 @@ function EditTab({
 
   if (certsLoading) {
     return (
-      <div className="flex items-center justify-center py-12 gap-3">
-        <TbLoader2 className="animate-spin opacity-30" size={20} />
-        <span className="text-sm opacity-40">Loading certificates…</span>
-      </div>
+      <Card className="p-6 space-y-4">
+        <Skeleton className="h-9 w-full" />
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-9 w-32" />
+      </Card>
     );
   }
 

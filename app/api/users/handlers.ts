@@ -46,7 +46,7 @@ export async function getUsers(req: NextRequest) {
     if (search) {
       const rx = new RegExp(esc(search), "i");
       filter = {
-        $or: [{ clientCode: rx }, { firstName: rx }, { lastName: rx }],
+        $or: [{ clientCode: rx }, { firstName: rx }, { lastName: rx }, { email: rx }],
       };
     }
 

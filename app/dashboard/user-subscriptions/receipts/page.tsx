@@ -9,6 +9,7 @@ import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import DataTable from "./DataTable";
 import { Input } from "@/components/ui/input";
+import { TableSkeleton } from "@/app/components/skeletons/TableSkeleton";
 import { AddReceiptModal } from "@/app/components/modals/AddReceiptModal";
 import ReceiptPDF from "@/app/components/pdfs/Receipt";
 // import html2pdf from "html2pdf.js";
@@ -224,7 +225,7 @@ const ReceiptsPage = () => {
     const pdfFailed = receiptsPayload.some((n) => !n.pdf);
     if (pdfFailed) {
       toast.error("Some PDFs failed to upload. Please try again.");
-      return { ok: false };
+      return false;
     }
 
     const res = await fetch("/api/user-subscriptions/receipts/bulk", {
@@ -237,11 +238,12 @@ const ReceiptsPage = () => {
 
     if (!res.ok) {
       toast.error(json?.message || "Failed to create receipts");
-      return { ok: false, error: json };
+      return false;
     }
 
     toast.success("Receipts added successfully!");
-    return { ok: true, data: json };
+    fetchReceipts();
+    return true;
   };
 
   const handleDelete = async (id: string) => {
@@ -315,7 +317,7 @@ const ReceiptsPage = () => {
         </div>
       </div>
       {loading ? (
-        <p className="text-center text-gray-500">Loading...</p>
+        <TableSkeleton rows={8} cols={isAdmin ? 8 : 7} showSearch={true} />
       ) : error ? (
         <p className="text-center text-red-500">{error}</p>
       ) : receipts.length === 0 ? (

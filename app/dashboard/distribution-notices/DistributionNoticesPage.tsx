@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import DataTable from "./DataTable";
 import { AddDistributionNoticeModal } from "@/app/components/modals/AddDistributionNoticeModal";
 import { Input } from "@/components/ui/input";
+import { TableSkeleton } from "@/app/components/skeletons/TableSkeleton";
 import DistributionNoticePDF from "@/app/components/pdfs/DistributionNotice";
 import ReactDOMServer from "react-dom/server";
 
@@ -177,7 +178,7 @@ const DistributionNoticesPage = () => {
     const pdfFailed = distributionNotices.some((n) => !n.pdf);
     if (pdfFailed) {
       toast.error("Some PDFs failed to upload. Please try again.");
-      return { ok: false };
+      return false;
     }
 
     const res = await fetch("/api/distribution-notices", {
@@ -190,11 +191,12 @@ const DistributionNoticesPage = () => {
 
     if (!res.ok) {
       toast.error(json?.message || "Failed to create distribution notices");
-      return { ok: false, error: json };
+      return false;
     }
 
     toast.success("Distribution Notices added successfully!");
-    return { ok: true, data: json };
+    fetchDistributionNotices();
+    return true;
   };
 
   const handleEditDistributionNotice = async (id: string, data: any) => {
@@ -305,7 +307,7 @@ const DistributionNoticesPage = () => {
         </div>
       </div>
       {loading ? (
-        <p className="text-center text-gray-500">Loading...</p>
+        <TableSkeleton rows={8} cols={isAdmin ? 6 : 4} showSearch={true} />
       ) : error ? (
         <p className="text-center text-red-500">{error}</p>
       ) : distributionNotices.length === 0 ? (

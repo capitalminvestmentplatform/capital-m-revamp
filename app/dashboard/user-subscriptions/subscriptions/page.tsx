@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import DataTable from "./DataTable";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
+import { TableSkeleton } from "@/app/components/skeletons/TableSkeleton";
 
 const SubscriptionsPage = () => {
   const router = useRouter();
@@ -167,7 +168,7 @@ const SubscriptionsPage = () => {
         </div>
       </div>
       {loading ? (
-        <p className="text-center text-gray-500">Loading...</p>
+        <TableSkeleton rows={8} cols={isAdmin ? 9 : 8} showSearch={true} />
       ) : error ? (
         <p className="text-center text-red-500">{error}</p>
       ) : subscriptions.length === 0 ? (

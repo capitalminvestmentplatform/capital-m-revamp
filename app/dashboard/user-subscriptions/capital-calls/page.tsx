@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import DataTable from "./DataTable";
 import { Input } from "@/components/ui/input";
+import { TableSkeleton } from "@/app/components/skeletons/TableSkeleton";
 
 const CapitalCallsPage = () => {
   const router = useRouter();
@@ -136,7 +137,7 @@ const CapitalCallsPage = () => {
         </div>
       </div>
       {loading ? (
-        <p className="text-center text-gray-500">Loading...</p>
+        <TableSkeleton rows={8} cols={isAdmin ? 9 : 7} showSearch={true} />
       ) : error ? (
         <p className="text-center text-red-500">{error}</p>
       ) : capitalCalls.length === 0 ? (

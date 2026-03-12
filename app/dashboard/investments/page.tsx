@@ -18,6 +18,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { CardGridSkeleton } from "@/app/components/skeletons/CardGridSkeleton";
+import { TableSkeleton } from "@/app/components/skeletons/TableSkeleton";
 
 const InvestmentsPage = () => {
   const role = getLoggedInUser()?.role;
@@ -285,7 +287,11 @@ const InvestmentsPage = () => {
       </div>
 
       {loading ? (
-        <p className="text-center text-gray-500">Loading...</p>
+        view === "grid" ? (
+          <CardGridSkeleton cards={6} />
+        ) : (
+          <TableSkeleton rows={8} cols={8} showSearch={true} />
+        )
       ) : error ? (
         <p className="text-center text-red-500">{error}</p>
       ) : filteredInvestments?.length === 0 ? (

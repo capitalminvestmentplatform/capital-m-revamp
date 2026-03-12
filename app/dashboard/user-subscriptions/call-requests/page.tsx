@@ -1,5 +1,6 @@
 "use client";
 import { Input } from "@/components/ui/input";
+import { TableSkeleton } from "@/app/components/skeletons/TableSkeleton";
 import DataTable from "./DataTable";
 import { AddCallRequestModal } from "@/app/components/modals/AddCallRequestModal";
 import { getLoggedInUser } from "@/utils/client";
@@ -141,7 +142,7 @@ const CallRequestsPage = () => {
         </div>
       </div>
       {loading ? (
-        <p className="text-center text-gray-500">Loading...</p>
+        <TableSkeleton rows={8} cols={5} showSearch={true} />
       ) : error ? (
         <p className="text-center text-red-500">{error}</p>
       ) : callRequests.length === 0 ? (
